@@ -4,6 +4,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import connectDB from './Utils/Database.js'
 import AuthRoutes from "./routes/AuthRoutes.js"
+import PostRoutes from './routes/PostRoutes.js';
 
 const app = express()
 
@@ -21,6 +22,7 @@ app.use(express.json({limit:'1mb'}))
 app.use(cookieParser())
 
 app.use('/api/users',AuthRoutes)
+app.use('/api/posts', PostRoutes)
 
 
 app.listen(PORT,async()=>{
