@@ -1,10 +1,14 @@
 import express from 'express'
+
 import { upload } from '../middlewares/multer.js';
-import { register,login } from '../controllers/AuthControllers';
+import { googleSignIn, login, register } from '../controllers/AuthControllers.js';
 const router=express.Router();
 
-router.route("/register").post(register)
+router.route("/register").post(upload.single('avatar'),register)
 router.route("/login",login).post(login)
 router.route("/logout")
+router.route("/google-login").post(googleSignIn)
+// router.put("/update",)
+// router.route("/generate-complaint").post(generateComplaint)
 
 export default router

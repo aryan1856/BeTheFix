@@ -1,7 +1,11 @@
-import { User } from "../models/user.model.js"
+import { User } from "../models/user.model.js";
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import validator from 'validator'
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { OAuth2Client } from 'google-auth-library';
+import { Admin } from "../models/Admin.model.js";
+//import {OpenAI } from 'openai'
 
 export const register = async (req, res) => {
     try {
@@ -274,3 +278,22 @@ export const AdminLogin = async (req, res) => {
 //   }
 // };
 
+export const update = async (req, res) => {
+  try {
+      const { fullName, address, age } = req.body;
+
+      const updatedUser = await User.findByIdAndUpdate(
+          req.user._id,
+          { fullName, address, age },
+          { new: true }
+      );
+
+      if(!updatedUser)
+          throw new Error("Internal server error");
+
+      res.status(200).json({ message: "User updated", success: true, user: updatedUser });
+
+  } catch (error) {
+      res.status(500).json({ message: error.message, success: false });
+  }
+};
