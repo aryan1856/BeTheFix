@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'
 import connectDB from './Utils/Database.js'
 import AuthRoutes from "./routes/AuthRoutes.js"
 import PostRoutes from './routes/PostRoutes.js';
+import CommentRoutes from './routes/CommentRoutes.js';
 
 const app = express()
 
@@ -23,6 +24,7 @@ app.use(cookieParser())
 
 app.use('/api/users',AuthRoutes)
 app.use('/api/posts', PostRoutes)
+app.use('/api/comments', CommentRoutes)
 
 
 app.listen(PORT,async()=>{
