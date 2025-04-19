@@ -1,5 +1,5 @@
 import express from 'express';
-import { add, remove, getAllReplies, getCommentDetails, getCommentsOnPosts} from '../controllers/CommentController.js';
+import { add, remove, getAllReplies, getCommentsOnPosts} from '../controllers/CommentController.js';
 import isAuthenticated from '../middlewares/check-auth.js';
 
 const router = express.Router();
