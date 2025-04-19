@@ -9,7 +9,6 @@ import {
   Profile,
   ReportIssue,
   AdminDashboard,
-  ResolvedIssues
 } from "./pages";
 import Login from "./pages/Login.jsx"
 import { GoogleOAuthProvider } from "@react-oauth/google"
