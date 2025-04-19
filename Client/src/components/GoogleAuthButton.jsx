@@ -3,6 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const GoogleAuthButton = () => {
   const [formExtras, setFormExtras] = useState({
@@ -14,7 +15,7 @@ const GoogleAuthButton = () => {
   });
 
   const [locationFetched, setLocationFetched] = useState(false);
-
+  const navigate=useNavigate()
   // Get browser location on mount
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -50,7 +51,7 @@ const GoogleAuthButton = () => {
         return;
       }
 
-      const res = await axios.post('http://localhost:8000/api/users/google-login', {
+      const res = await axios.post('http://localhost:8000/api/auth/google-login', {
         token,
         age,
         gender,
@@ -60,8 +61,9 @@ const GoogleAuthButton = () => {
       },{
         withCredentials:true
       });
-
+      navigate('/dashboard')
       toast.success(res.data.message);
+      
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.message || "Google login failed");
