@@ -2,9 +2,10 @@ import Post from '../models/Post.model.js';
 import Comment from '../models/Comment.model.js';
 import {User} from '../models/User.model.js';
 import mongoose from 'mongoose'; 
-import { uploadOnCloudinary } from '../Utils/Cloudinary.js'; 
+import { uploadOnCloudinary} from '../utils/Cloudinary.js'
 import axios from "axios";
 import fetchLocation from '../utils/fetchLocation.js';
+import Volunteered from '../models/Volunteered.model.js'
 
 export const createPost = async (req, res) => {
     try {
@@ -104,54 +105,41 @@ export const deletePost = async (req, res) => {
 export const getAllPosts = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { longitude, latitude } = req.body;
-
-    const currLocation = await fetchLocation(longitude, latitude);
-    if (!currLocation) throw new Error("Location: Internal server error");
 
     const user = await User.findById(userId);
-    if (!user) throw new Error("User: Internal server error");
+    if (!user) {
+      throw new Error("Internal server error");
+    }
 
-    const { area, city } = currLocation;
+    const posts = await Post.find().lean();
 
-    // Fetch posts matching either area or city
-    const posts = await Post.find({
-      $or: [
-        { "location.area": area },
-        { "location.city": city }
-      ]
-    }).sort({ createdAt: -1 }).lean();
-
-    // Custom sort: area posts first, then city-level ones
-    const sortedPosts = posts.sort((a, b) => {
-      const aAreaMatch = a.location?.area === area;
-      const bAreaMatch = b.location?.area === area;
-
-      if (aAreaMatch && !bAreaMatch) return -1;
-      if (!aAreaMatch && bAreaMatch) return 1;
-      return 0; // if both match or both don't, maintain current order
-    });
-
-    // Add upvote/downvote + author info
-    const postsWithExtras = await Promise.all(
-      sortedPosts.map(async (post) => {
+    const postsWithDetails = await Promise.all(
+      posts.map(async (post) => {
         const author = await User.findById(post.createdBy);
+
+        const isVolunteered = await Volunteered.findOne({
+          postId: post._id,
+          volunteeredBy: userId,
+        });
+
         return {
           ...post,
-          upvoted: post.upvotes?.some(id => id.toString() === userId.toString()) || false,
-          downvoted: post.downvotes?.some(id => id.toString() === userId.toString()) || false,
+          upvoted: post.upvotes?.some((id) => id.toString() === userId.toString()) || false,
+          downvoted: post.downvotes?.some((id) => id.toString() === userId.toString()) || false,
+          alreadyVolunteered: !!isVolunteered,
           author: {
             avatar: author.avatar,
             name: author.fullName,
           },
+          upvoteCount: post.upvotes?.length || 0,
         };
       })
     );
 
-    res.status(200).json(postsWithExtras);
+    postsWithDetails.sort((a, b) => b.upvoteCount - a.upvoteCount);
 
+    res.status(200).json(postsWithDetails);
   } catch (error) {
-    console.error("Error in getAllPosts:", error.message);
     res.status(500).json({ message: error.message, success: false });
   }
 };
@@ -355,3 +343,25 @@ export const getUserPosts = async (req, res) => {
         res.status(500).json({ message: error.message, success: false });
     }
 }
+
+import VolunteeredAndResolved from '../models/VolunteeredAndResolved.js';
+
+export const getResolvedPostsData = async (req, res) => {
+  try {
+    const records = await VolunteeredAndResolved.find()
+      .populate('resolvedBy', 'fullName')
+      .populate('post', 'images');
+
+    const result = records.map(record => ({
+      fullName: record.resolvedBy?.fullName || null,
+      postImage: record.post?.images?.[0] || null,
+      resolvedImage: record.image,
+      remarks: record.remarks
+    }));
+
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};

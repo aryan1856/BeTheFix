@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import {useSelector} from 'react-redux';
-import UserProfile from "../components/ProfileMainComponent"
+import UserProfile from '../components/ProfileMainComponent.jsx'
 import ProfileTabContent from "../components/profile_components/ProfileTabContent";
 
 const Profile = () => {
