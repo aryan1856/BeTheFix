@@ -1,6 +1,28 @@
+import { Outlet } from "react-router-dom"
+import { useDispatch } from 'react-redux'
+import { setLocation } from "../../store/locationSlice.js";
+import { useEffect } from "react";
+
 const HomeLayout = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          dispatch(setLocation({ latitude, longitude }));
+        },
+        (err) => {
+          console.error('Location error:', err);
+        }
+      );
+    }
+  }, []);
   return (
-    <div>HomeLayout</div>
+    <>
+        <Outlet />
+    </>
   )
 }
 export default HomeLayout

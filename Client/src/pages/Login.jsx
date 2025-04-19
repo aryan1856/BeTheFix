@@ -49,8 +49,8 @@ export default function Login() {
 
       try {
         const url = isLogin
-          ? 'http://localhost:8000/api/users/login'
-          : 'http://localhost:8000/api/users/register';
+          ? `${import.meta.env.VITE_BACKEND_URL}/api/auth/login`
+          : `${import.meta.env.VITE_BACKEND_URL}/api/auth/register`;
 
         let payload;
         let config;
