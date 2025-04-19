@@ -331,27 +331,35 @@ export const getUserPosts = async (req, res) => {
         const userId = req.user._id;
 
         const user = await User.findById(userId);
-        if(!user)
-          throw new Error("Internal server error");
-
-        const posts = await Post.find({createdBy : user}).sort({ createdAt: -1 }).lean();
-
-        if(!posts)
+        if (!user)
             throw new Error("Internal server error");
-  
+
+        // Find posts by user
+        const posts = await Post.find({ createdBy: user }).sort({ createdAt: -1 }).lean();
+
+        if (!posts)
+            throw new Error("Internal server error");
+
+        // Calculate the resolved count based on the post's state
+        const resolvedCount = posts.filter((post) => post.status.state === 'Resolved').length;
+
         const postsWithUpvotesAndDownvotes = posts.map((post) => ({
-          ...post,
-          upvoted: post.upvotes?.some((id) => id.toString() === userId.toString()) || false,
-          downvoted: post.downvotes?.some((id) => id.toString() === userId.toString()) || false,
-          author : {
-            avatar : user.avatar,
-            name : user.fullName
-          }
+            ...post,
+            upvoted: post.upvotes?.some((id) => id.toString() === userId.toString()) || false,
+            downvoted: post.downvotes?.some((id) => id.toString() === userId.toString()) || false,
+            author: {
+                avatar: user.avatar,
+                name: user.fullName,
+            },
         }));
 
-        res.status(200).json({message : "Posts fetched", posts : postsWithUpvotesAndDownvotes, success : true});
-
+        res.status(200).json({
+            message: "Posts fetched",
+            posts: postsWithUpvotesAndDownvotes,
+            resolvedCount,
+            success: true,
+        });
     } catch (error) {
         res.status(500).json({ message: error.message, success: false });
     }
-}
+};

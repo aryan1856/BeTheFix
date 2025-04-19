@@ -4,7 +4,19 @@ import ProfileAbout from "./ProfileAbout";
 import ProfileBadges from "./ProfileBadges";
 import ProfileVolunteeredPosts from "./ProfileVolunteeredPosts";
 
-const ProfileTabContent = ({ activeTab, posts , LoggedInUser}) => {
+const ProfileTabContent = ({ activeTab, posts , LoggedInUser, resolvedCount}) => {
+
+  // console.log(posts);
+
+  const userData = {
+    name: LoggedInUser.loggedinUser.fullName,
+    badges: resolvedCount % 5,
+    issuesResolved: resolvedCount,
+    megaBadge: resolvedCount >= 25,
+    volunteerBadge : LoggedInUser.loggedinUser.volunteeredAndResolved > 0,
+    volunteerResolvedCount : LoggedInUser.loggedinUser.volunteeredAndResolved
+  };
+
   if (activeTab === "Posts") {
     return <ProfilePosts posts={posts}/>
   }
@@ -14,7 +26,7 @@ const ProfileTabContent = ({ activeTab, posts , LoggedInUser}) => {
   }
 
   if (activeTab === "Badges") {
-      return <ProfileBadges/>
+      return <ProfileBadges user={userData}/>
   }
 
   if(activeTab==="Volunteered Posts"){

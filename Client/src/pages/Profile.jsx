@@ -8,6 +8,7 @@ const Profile = () => {
     const [activeTab, setActiveTab] = useState("Posts");
     const LoggedInUser = useSelector((state) => state.user);
     const [posts, setPosts] = useState([]);
+    const [resolvedCount, setResolvedCount] = useState(0);
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -21,6 +22,7 @@ const Profile = () => {
                 }
                 
                 setPosts(response.data.posts);
+                setResolvedCount(response.data.resolvedCount);
             } catch (err) {
                 console.error("Error fetching posts:", err);
             }
@@ -28,10 +30,11 @@ const Profile = () => {
         fetchPosts();
     }, []);
 
+
     return (
         <div className="p-4">
             <UserProfile activeTab={activeTab} setActiveTab={setActiveTab} LoggedInUser={LoggedInUser}/>
-            <ProfileTabContent activeTab={activeTab} posts={posts} LoggedInUser={LoggedInUser}/>
+            <ProfileTabContent activeTab={activeTab} posts={posts} LoggedInUser={LoggedInUser} resolvedCount={resolvedCount}/>
         </div>
     );
 };

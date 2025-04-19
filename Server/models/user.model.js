@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema({
         type : Number,
         required : true
       }
+  },
+  volunteeredAndResolved : {
+    type : Number,
+    default : 0
   }
 }, { timestamps: true });
 
