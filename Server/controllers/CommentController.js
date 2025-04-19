@@ -88,17 +88,28 @@ export const getAllReplies = async (req, res) => {
         const id = req.params.id;
 
         const parent = await Comment.findById(id);
-        if(!parent)
-            return res.status(404).json({message : "Parent comment not found", success : false});
+        if (!parent)
+            return res.status(404).json({ message: "Parent comment not found", success: false });
 
-        const replies = await Comment.find({ parent: id });
+        const replies = await Comment.find({ parent: id }).populate('user', 'fullName avatar');
 
-        res.status(200).json({message : "Replies fetched", replies : replies, success : true});
+        const repliesWithUser = replies.map((reply) => ({
+            _id: reply._id,
+            text : reply.text,
+            parent: reply.parent,
+            createdAt: reply.createdAt,
+            updatedAt: reply.updatedAt,
+            fullName: reply.user.fullName,
+            avatar: reply.user.avatar
+        }));
+
+        res.status(200).json({ message: "Replies fetched", replies: repliesWithUser, success: true });
 
     } catch (error) {
         res.status(500).json({ message: error.message, success: false });
     }
-}
+};
+
 
 export const getCommentsOnPosts = async (req, res) => {
     try {
