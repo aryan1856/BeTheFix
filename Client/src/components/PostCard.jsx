@@ -68,7 +68,7 @@ const PostCard = ({ post, onOpenModal }) => {
         `${import.meta.env.VITE_BACKEND_URL}/api/users/volunteerpost/${post._id}`,{},
         { withCredentials: true }
       );
-      toast.success("You volunteered successfully!");
+      toast.success("You are now a voluteer ,go and fix this issue.");
       setIsVolunteered(true);
     } catch (error) {
       if (!error.response?.data) toast.error(error.message);
@@ -158,13 +158,18 @@ const PostCard = ({ post, onOpenModal }) => {
         </div>
 
         {/* Volunteer Button */}
-        <button
-  onClick={handleVolunteer}
-  disabled={isVolunteered}
-  className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
->
-  {isVolunteered ? 'Already Volunteered' : 'Volunteer'}
-</button>
+        {/* Volunteer Button */}
+{post.status?.state !== 'Resolved' && (
+  <button
+    onClick={handleVolunteer}
+    disabled={isVolunteered}
+    className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    {isVolunteered ? 'Already Volunteered' : 'Volunteer'}
+  </button>
+)}
+
+
 
       </div>
     </motion.div>

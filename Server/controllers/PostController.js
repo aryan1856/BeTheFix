@@ -4,6 +4,7 @@ import {User} from '../models/User.model.js';
 import mongoose from 'mongoose'; 
 import { uploadOnCloudinary } from '../Utils/Cloudinary.js'; 
 import axios from "axios";
+import fetchLocation from '../utils/fetchLocation.js';
 
 export const createPost = async (req, res) => {
     try {
@@ -103,21 +104,42 @@ export const deletePost = async (req, res) => {
 export const getAllPosts = async (req, res) => {
   try {
     const userId = req.user._id;
+    const { longitude, latitude } = req.body;
+
+    const currLocation = await fetchLocation(longitude, latitude);
+    if (!currLocation) throw new Error("Location: Internal server error");
 
     const user = await User.findById(userId);
-    if (!user) {
-      throw new Error("Internal server error");
-    }
+    if (!user) throw new Error("User: Internal server error");
 
-    const posts = await Post.find().sort({ createdAt: -1 }).lean();
+    const { area, city } = currLocation;
 
-    const postsWithUpvotesAndDownvotes = await Promise.all(
-      posts.map(async (post) => {
+    // Fetch posts matching either area or city
+    const posts = await Post.find({
+      $or: [
+        { "location.area": area },
+        { "location.city": city }
+      ]
+    }).sort({ createdAt: -1 }).lean();
+
+    // Custom sort: area posts first, then city-level ones
+    const sortedPosts = posts.sort((a, b) => {
+      const aAreaMatch = a.location?.area === area;
+      const bAreaMatch = b.location?.area === area;
+
+      if (aAreaMatch && !bAreaMatch) return -1;
+      if (!aAreaMatch && bAreaMatch) return 1;
+      return 0; // if both match or both don't, maintain current order
+    });
+
+    // Add upvote/downvote + author info
+    const postsWithExtras = await Promise.all(
+      sortedPosts.map(async (post) => {
         const author = await User.findById(post.createdBy);
         return {
           ...post,
-          upvoted: post.upvotes?.some((id) => id.toString() === userId.toString()) || false,
-          downvoted: post.downvotes?.some((id) => id.toString() === userId.toString()) || false,
+          upvoted: post.upvotes?.some(id => id.toString() === userId.toString()) || false,
+          downvoted: post.downvotes?.some(id => id.toString() === userId.toString()) || false,
           author: {
             avatar: author.avatar,
             name: author.fullName,
@@ -126,11 +148,14 @@ export const getAllPosts = async (req, res) => {
       })
     );
 
-    res.status(200).json(postsWithUpvotesAndDownvotes);
+    res.status(200).json(postsWithExtras);
+
   } catch (error) {
+    console.error("Error in getAllPosts:", error.message);
     res.status(500).json({ message: error.message, success: false });
   }
 };
+
 
   
 export const updateByUser = async (req, res) => {
