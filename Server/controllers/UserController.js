@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import {User} from '../models/user.model';
-import fetchLocation from '../utils/fetchLocation';
+import {User} from '../models/User.model.js'
+import fetchLocation from '../utils/fetchLocation.js';
+import Volunteered from "../models/Volunteered.model.js";
 
 export const update = async (req, res) => {
     try {
@@ -80,3 +81,24 @@ export const update = async (req, res) => {
       res.status(500).json({ error: "Failed to generate complaint" });
     }
   };
+
+  export const volunteerForPost = async (req, res) => {
+    try {
+      const { postId } = req.params;
+      const userId = req.user._id;
+  
+      const alreadyVolunteered = await Volunteered.findOne({ volunteeredBy: userId, postId: postId });
+      if (alreadyVolunteered) {
+        return res.status(400).json({ message: 'Already volunteered for this post.' });
+      }
+  
+      const newEntry = new Volunteered({ volunteeredBy: userId, postId: postId });
+      await newEntry.save();
+  
+      res.status(200).json({ message: 'Successfully volunteered for the post.' });
+    } catch (error) {
+      console.error('Volunteer error:', error);
+      res.status(500).json({ message: 'Something went wrong.' });
+    }
+  };
+  
