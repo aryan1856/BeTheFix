@@ -4,7 +4,7 @@ const postSchema = new mongoose.Schema({
     caption : {
         type : String,
         required : true,
-        maxLength : 500
+        maxLength : 3000
     },
     images : [{
         type : String,
