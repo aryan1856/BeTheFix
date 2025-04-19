@@ -171,18 +171,26 @@ export const googleSignIn = async (req, res) => {
         }
       });
     }
-
-    const authToken = jwt.sign({ id: user?._id }, process.env.JWT_SECRET, {
-      expiresIn: '1d',
+    if(!user){
+      res.status(500).json({
+        message:"Invalid User"
+      })
+    }
+    const tokenData={
+      userId:user._id
+    }
+    const authToken = jwt.sign(tokenData, process.env.JWT_SECRET, {
+      expiresIn: '7d',
     });
 
-    const createdUser = await User.findById(user._id).select("-password");
+    const createdUser=user.toObject()
+    delete user.password
 
     return res.status(200).cookie("token", authToken, {
       maxAge: 1 * 24 * 60 * 60 * 1000,
       httpOnly: true,
       sameSite: 'None',
-      secure:false
+      secure:'false'
   })
       .json({
           createdUser ,

@@ -5,6 +5,9 @@ import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { FiUser, FiMapPin, FiCalendar, FiNavigation } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import { setLoggedinUser } from '../../store/userSlice';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 const GoogleAuthButton = () => {
   const [formExtras, setFormExtras] = useState({
@@ -17,6 +20,8 @@ const GoogleAuthButton = () => {
 
   const [locationFetched, setLocationFetched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate=useNavigate()
+  const dispatch=useDispatch()
 
   // Get browser location on mount
   useEffect(() => {
@@ -64,7 +69,7 @@ const GoogleAuthButton = () => {
         return;
       }
 
-      const res = await axios.post('http://localhost:8000/api/users/google-login', {
+      const res = await axios.post('http://localhost:8000/api/auth/google-login', {
         token,
         age,
         gender,
@@ -74,7 +79,9 @@ const GoogleAuthButton = () => {
       }, {
         withCredentials: true
       });
-
+      console.log(res.data.createdUser)
+      dispatch(setLoggedinUser(res.data.createdUser))
+      navigate('/dashboard')
       toast.success(res.data.message, {
         icon: '🎉',
       });
@@ -96,7 +103,7 @@ const GoogleAuthButton = () => {
       className="max-w-md mx-auto p-6 bg-white rounded-xl shadow-md space-y-5"
     >
       <h2 className="text-2xl font-bold text-center text-gray-800">Complete Your Profile</h2>
-      <p className="text-center text-gray-500">Sign up with Google</p>
+      <p className="text-center text-gray-500">Sign in with Google</p>
 
       <div className="space-y-4">
         {/* Age input */}

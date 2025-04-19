@@ -4,7 +4,7 @@ import PostModal from '../PostModal'; // adjust import if needed
 
 const ProfilePosts = ({ posts }) => {
   const [selectedPost, setSelectedPost] = useState(null);
-
+  console.log(posts)
   return (
     <div className="mt-4 max-w-6xl mx-auto">
       {/* Scrollable Post Grid */}
