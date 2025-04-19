@@ -1,15 +1,16 @@
 import React, { useState } from "react";
-import axios from 'axios';
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const UserProfile = ({ activeTab, setActiveTab, LoggedInUser }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editData, setEditData] = useState({
     fullName: LoggedInUser.loggedinUser.fullName,
     address: LoggedInUser.loggedinUser.address,
-    age: LoggedInUser.loggedinUser.age
+    age: LoggedInUser.loggedinUser.age,
   });
 
-  const tabs = ["Posts", "About", "Badges","Volunteered Posts"];
+  const tabs = ["Posts", "About", "Badges", "Volunteered Posts"];
 
   const handleEditProfile = () => {
     setIsModalOpen(true);
@@ -24,10 +25,10 @@ const UserProfile = ({ activeTab, setActiveTab, LoggedInUser }) => {
           withCredentials: true,
         }
       );
-      console.log("Profile updated successfully:", res.data);
-      // Optionally update UI or parent state here
+      toast.success(res.data.message)
     } catch (error) {
       console.error("Error updating profile:", error.message);
+      toast.error(error.message);
     }
     setIsModalOpen(false);
   };
@@ -45,12 +46,17 @@ const UserProfile = ({ activeTab, setActiveTab, LoggedInUser }) => {
           alt="Profile"
           className="w-24 h-24 rounded-full border-4 border-white shadow"
         />
-        <h2 className="text-xl font-semibold">{LoggedInUser.loggedinUser.fullName}</h2>
+        <h2 className="text-xl font-semibold">
+          {LoggedInUser.loggedinUser.fullName}
+        </h2>
         <p className="text-gray-600 text-sm text-center px-2">
-          {(LoggedInUser.loggedinUser.location.area || LoggedInUser.loggedinUser.location.city) + ","+LoggedInUser.loggedinUser.location.country}
+          {(LoggedInUser.loggedinUser.location.area ||
+            LoggedInUser.loggedinUser.location.city) +
+            "," +
+            LoggedInUser.loggedinUser.location.country}
         </p>
         <button
-          className="mt-1 px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+          className="mt-1 px-3 py-1 bg-[#2cb1bc] text-white text-sm rounded hover:bg-[#0e7c86]"
           onClick={handleEditProfile}
         >
           Edit Profile
@@ -66,7 +72,7 @@ const UserProfile = ({ activeTab, setActiveTab, LoggedInUser }) => {
               onClick={() => setActiveTab(tab)}
               className={`pb-2 cursor-pointer transition-all ${
                 activeTab === tab
-                  ? "border-b-2 border-blue-500 font-semibold text-black"
+                  ? "border-b-2 border-[#2cb1bc] font-semibold text-black"
                   : "hover:border-b-2 hover:border-gray-300"
               }`}
             >
@@ -123,7 +129,7 @@ const UserProfile = ({ activeTab, setActiveTab, LoggedInUser }) => {
               </button>
               <button
                 onClick={handleUpdate}
-                className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                className="px-3 py-1 bg-[#2cb1bc] text-white text-sm rounded hover:bg-[#0e7c86]"
               >
                 Update
               </button>
