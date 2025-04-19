@@ -14,7 +14,7 @@ const LogoutContainer = () => {
 
   const logoutUser = async () => {
     try {
-      await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/logout`, {
+      await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/auth/logout`, {
         withCredentials: true,
       });
       dispatch(setLoggedinUser(null));
