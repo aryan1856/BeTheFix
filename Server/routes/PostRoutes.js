@@ -11,7 +11,7 @@ import { upload } from '../middlewares/multer.js';
  
 const router = express.Router();
 
-router.get('/', isAuthenticated, getAllPosts);
+router.post('/', isAuthenticated, getAllPosts);
 router.get("/u", isAuthenticated, getUserPosts);
 router.post('/create', isAuthenticated, upload.array('images'), createPost);
 router.delete('/delete', isAuthenticated, deletePost);
