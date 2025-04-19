@@ -9,6 +9,7 @@ import {
   Profile,
   ReportIssue,
   AdminDashboard,
+  ResolvedIssues
 } from "./pages";
 import Login from "./pages/Login.jsx"
 import { GoogleOAuthProvider } from "@react-oauth/google"
@@ -39,6 +40,7 @@ const router = createBrowserRouter([
               { path: "leaderboard", element: <Leaderboard /> },
               { path: "profile", element: <Profile /> },
               { path: "admindashboard", element: <AdminDashboard /> },
+              {path: "resolved", element: <ResolvedIssues />}
             ],
           },
         ],

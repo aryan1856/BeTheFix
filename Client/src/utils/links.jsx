@@ -5,6 +5,7 @@ import { ImProfile } from "react-icons/im";
 import { FaHome, FaBug } from "react-icons/fa";
 import { MdLeaderboard } from "react-icons/md";
 import { GrUserAdmin } from "react-icons/gr";
+import { FaTools } from "react-icons/fa";
 
 const allLinks = [
   {
@@ -26,6 +27,11 @@ const allLinks = [
     text: "profile",
     path: "profile",
     icon: <ImProfile />,
+  },
+  {
+    text: "Issues Resolved By Volutees",
+    path: "resolved",
+    icon: <FaTools />,
   },
   {
     text: "Admin Dashboard",
