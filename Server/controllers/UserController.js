@@ -101,4 +101,107 @@ export const update = async (req, res) => {
       res.status(500).json({ message: 'Something went wrong.' });
     }
   };
+  export const getUserVolunteeredPosts = async (req, res) => {
+    try {
+        const userId = req.user._id;
+  
+        const user = await User.findById(userId);
+        if(!user)
+          throw new Error("Internal server error");
+        const records = await Volunteered.find({ volunteeredBy:userId }).select('postId').lean();
+        if(!records){
+          res.status(500).json({
+            message:"No post voluteered"
+          })
+        }
+        const postIds = records.map(r => r.postId);
+  
+        const posts = await Post.find({ _id: { $in: postIds } }).sort({ createdAt: -1 }).lean();
+  
+  
+  
+        const postsWithDetails = await Promise.all(
+          posts.map(async (post) => {
+            const author = await User.findById(post.createdBy);
+    
+            const isVolunteered = await Volunteered.findOne({
+              postId: post._id,
+              volunteeredBy: userId,
+            });
+    
+            return {
+              ...post,
+              upvoted: post.upvotes?.some((id) => id.toString() === userId.toString()) || false,
+              downvoted: post.downvotes?.some((id) => id.toString() === userId.toString()) || false,
+              alreadyVolunteered: !!isVolunteered,
+              author: {
+                avatar: author.avatar,
+                name: author.fullName,
+              },
+              upvoteCount: post.upvotes?.length || 0,
+            };
+          })
+        );
+    
+        postsWithDetails.sort((a, b) => b.upvoteCount - a.upvoteCount);
+    
+        res.status(200).json({postsWithDetails,success:true});
+    
+    } catch (error) {
+        res.status(500).json({ message: error.message, success: false });
+    }
+  }
+
+  export const resolvePost = async (req, res) => {
+    try {
+      const { postId, remarks } = req.body;
+      const userId = req.user._id;
+  
+      if (!postId || !remarks || !req.file) {
+        return res.status(400).json({
+          success: false,
+          message: "Post ID, remarks, and an image are required",
+        });
+      }
+  
+      const cloudinaryResult = await uploadOnCloudinary(req.file.path);
+  
+      if (!cloudinaryResult) {
+        return res.status(500).json({
+          success: false,
+          message: "Image upload failed",
+        });
+      }
+  
+      // Save to VolunteeredAndResolved collection
+      const resolvedPost = new VolunteeredAndResolved({
+        post: postId,
+        resolvedBy: userId,
+        remarks,
+        image: cloudinaryResult.secure_url,
+      });
+  
+      await resolvedPost.save();
+  
+      // Update status in the Post schema
+      await Post.findByIdAndUpdate(postId, {
+        $set: {
+          'status.state': 'Resolved',
+          'status.remarks': remarks,
+        },
+      });
+  
+      return res.status(201).json({
+        success: true,
+        message: "Post resolved successfully",
+        resolvedPost,
+      });
+    } catch (error) {
+      console.error("Resolve Post Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+      });
+    }
+  };
   
