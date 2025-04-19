@@ -8,8 +8,7 @@ import {
   Leaderboard,
   Profile,
   ReportIssue,
-  AdminDashboard,
-  ResolvedIssues
+  AdminDashboard
 } from "./pages";
 import Login from "./pages/Login.jsx"
 import { GoogleOAuthProvider } from "@react-oauth/google"
