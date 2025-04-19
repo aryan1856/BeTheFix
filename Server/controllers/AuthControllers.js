@@ -5,84 +5,82 @@ import validator from 'validator'
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { OAuth2Client } from 'google-auth-library';
 import { Admin } from "../models/Admin.model.js";
+import fetchLocation from '../utils/fetchLocation.js';
 //import {OpenAI } from 'openai'
 
 export const register = async (req, res) => {
-    try {
-      const {
-        fullname,
-        email,
-        password,
-        confirmPassword,
-        address,
-        latitude,
-        longitude,
-        gender,
-        age
-      } = req.body;
-  
-      const avatar = req.file ? req.file.path : null;
-  
-      if (!avatar) {
-        return res.status(400).json({ message: "Avatar is required." });
-      }
-  
-      if (
-        !fullname  || !email || !password ||
-        !confirmPassword || !address || !latitude || !longitude || !gender || !age
-      ) {
-        return res.status(400).json({ message: "All fields are required!!" });
-      }
-  
-      if (password !== confirmPassword) {
-        return res.status(400).json({ message: "Passwords do not match" });
-      }
-  
-      if (!validator.isEmail(email)) {
-        return res.status(400).json({ message: "Please provide a valid email" });
-      }
-  
-      const emailExists = await User.findOne({ email });
-      if (emailExists) {
-        return res.status(400).json({ message: "Email already exists! Try a different one." });
-      }
-  
-  
-      const hashedPass = await bcrypt.hash(password, 10);
-  
-      const uploadResponse = await uploadOnCloudinary(avatar);
-      const avatarUrl = uploadResponse?.secure_url;
-      if (!avatarUrl) {
-        return res.status(400).json({ message: "Avatar upload failed" });
-      }
-  
-      const user = await User.create({
-        fullName: fullname,
-        email,
-        password: hashedPass,
-        avatar: avatarUrl,
-        address,
-        gender,
-        age,
-        location: {
-          type: "Point",
-          coordinates: [parseFloat(longitude), parseFloat(latitude)]
-        }
-      });
-  
-      const createdUser = await User.findById(user._id).select("-password");
-  
-      return res.status(201).json({
-        message: "Account created successfully.",
-        success: true,
-        user: createdUser
-      });
-  
-    } catch (error) {
-      console.error(error.message);
-      return res.status(500).json({ message: 'Server Error', success: false });
+  try {
+    const {
+      fullname,
+      email,
+      password,
+      confirmPassword,
+      latitude,
+      longitude,
+      gender,
+      age
+    } = req.body;
+
+    const avatar = req.file ? req.file.path : null;
+
+    if (!avatar) {
+      return res.status(400).json({ message: "Avatar is required." });
     }
-  };
+
+    if (
+      !fullname  || !email || !password ||
+      !confirmPassword || !latitude || !longitude || !gender || !age
+    ) {
+      return res.status(400).json({ message: "All fields are required!!" });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({ message: "Please provide a valid email" });
+    }
+
+    const emailExists = await User.findOne({ email });
+    if (emailExists) {
+      return res.status(400).json({ message: "Email already exists! Try a different one." });
+    }
+
+
+    const hashedPass = await bcrypt.hash(password, 10);
+
+    const uploadResponse = await uploadOnCloudinary(avatar);
+    const avatarUrl = uploadResponse?.secure_url;
+    if (!avatarUrl) {
+      return res.status(400).json({ message: "Avatar upload failed" });
+    }
+
+    const location = await fetchLocation(longitude, latitude);
+
+    const user = await User.create({
+      fullName: fullname,
+      email,
+      password: hashedPass,
+      avatar: avatarUrl,
+      gender,
+      age,
+      location
+    });
+
+    const createdUser = await User.findById(user._id).select("-password");
+
+    return res.status(201).json({
+      message: "Account created successfully.",
+      success: true,
+      user: createdUser
+    });
+
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({ message: 'Server Error', success: false });
+  }
+};
 
   export const login = async (req, res) => {
     try {
@@ -277,23 +275,3 @@ export const AdminLogin = async (req, res) => {
 //     res.status(500).json({ error: 'Failed to generate complaint' });
 //   }
 // };
-
-export const update = async (req, res) => {
-  try {
-      const { fullName, address, age } = req.body;
-
-      const updatedUser = await User.findByIdAndUpdate(
-          req.user._id,
-          { fullName, address, age },
-          { new: true }
-      );
-
-      if(!updatedUser)
-          throw new Error("Internal server error");
-
-      res.status(200).json({ message: "User updated", success: true, user: updatedUser });
-
-  } catch (error) {
-      res.status(500).json({ message: error.message, success: false });
-  }
-};

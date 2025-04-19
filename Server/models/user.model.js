@@ -5,7 +5,6 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true, trim: true },
   password: { type: String, required: true },
   avatar: { type: String },
-  address: { type: String },
   gender: { type: String, enum: ['Male', 'Female', 'Other'] },
   age: { type: Number },
   badges: { type: Number, default: 0 },
@@ -14,15 +13,25 @@ const userSchema = new mongoose.Schema({
   resolvedCount: { type: Number, default: 0 },
   isVolunteer: { type: Boolean, default: false },
   location: {
-    type: {
-      type: String,
-      enum: ['Point'],
-      default: 'Point'
-    },
-    coordinates: {
-      type: [Number], // [longitude, latitude]
-      default: [0, 0]
-    }
+      area : {
+        type : String,
+      },
+      city : {
+        type : String,
+        required : true
+      },
+      country : {
+        type : String,
+        required : true
+      },
+      longitude : {
+        type : Number,
+        required : true
+      },
+      latitude : {
+        type : Number,
+        required : true
+      }
   }
 }, { timestamps: true });
 

@@ -6,7 +6,8 @@ import connectDB from './Utils/Database.js'
 import AuthRoutes from "./routes/AuthRoutes.js"
 import PostRoutes from './routes/PostRoutes.js';
 import CommentRoutes from './routes/CommentRoutes.js';
-import AdminRoutes from './routes//AdminRoutes.js'
+import AdminRoutes from './routes/AdminRoutes.js'
+import UserRoutes from './routes/UserRoutes.js'
 
 const app = express()
 
@@ -23,10 +24,11 @@ app.use(express.urlencoded({limit:'100kb',extended:true}))
 app.use(express.json({limit:'1mb'}))
 app.use(cookieParser())
 
-app.use('/api/users',AuthRoutes)
+app.use('/api/auth',AuthRoutes)
 app.use('/api/posts', PostRoutes)
 app.use('/api/comments', CommentRoutes)
 app.use('/api/admin',AdminRoutes)
+app.use('/api/users',UserRoutes)
 
 
 app.listen(PORT,async()=>{

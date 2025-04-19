@@ -8,9 +8,12 @@ import {
   Leaderboard,
   Profile,
   ReportIssue,
-  Login
+  AdminDashboard
 } from "./pages";
-import { GoogleOAuthProvider } from "@react-oauth/google";
+import Login from "./pages/Login.jsx"
+import { GoogleOAuthProvider } from "@react-oauth/google"
+
+import PrivateRoute from "./components/PrivateRoute";
 
 const router = createBrowserRouter([
   {
@@ -18,56 +21,46 @@ const router = createBrowserRouter([
     element: <HomeLayout />,
     errorElement: <Error />,
     children: [
-      {
-        index: true,
-        element: <Landing />,
-      },
-      {
-        path: "login",
-        element: <Login />,
-      },
-      {
-        path: "register",
-        element: <Login />,
-      },
+      { index: true, element: <Landing /> },
+      { path: "login", element: <Login /> },
+      { path: "register", element: <Login /> },
+
       {
         path: "dashboard",
-        element: <DashboardLayout />,
+        element: <PrivateRoute />, // Protect everything under /dashboard
         children: [
           {
-            index: true,
-            element: <HomePage />,
-          },
-          {
-            path: "report",
-            element: <ReportIssue />,
-          },
-          {
-            path: "leaderboard",
-            element: <Leaderboard />,
-          },
-          {
-            path: "profile",
-            element: <Profile />,
+            element: <DashboardLayout />, // Dashboard layout wraps all child pages
+            children: [
+              { index: true, element: <HomePage /> },
+              { path: "report", element: <ReportIssue /> },
+              { path: "leaderboard", element: <Leaderboard /> },
+              { path: "profile", element: <Profile /> },
+              { path: "admindashboard", element: <AdminDashboard /> },
+            ],
           },
         ],
       },
     ],
   },
 ]);
-import { Toaster } from "react-hot-toast";
 
-import "./index.css";
+
+import { Toaster } from "react-hot-toast"
+
+import './index.css'
 
 function App() {
   return (
     <>
-      <GoogleOAuthProvider clientId="919467792428-imo97sd98mi3ndn7fpc9esb5sb8thn8j.apps.googleusercontent.com">
-        <RouterProvider router={router} />
+    <ComplaintProvider>
+    <GoogleOAuthProvider clientId="919467792428-imo97sd98mi3ndn7fpc9esb5sb8thn8j.apps.googleusercontent.com">
+      <RouterProvider router={router} />
       </GoogleOAuthProvider>
       <Toaster />
+    </ComplaintProvider>
     </>
-  );
+  )
 }
 
 export default App;
