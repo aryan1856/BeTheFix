@@ -6,6 +6,8 @@ import { Plus, Filter } from "lucide-react";
 import usePosts from "../hooks/usePosts.jsx";
 
 const HomePage = () => {
+
+  const CATEGORIES = ['Garbage', 'Roads', 'Street Lights', 'Drainage Issue', 'Others'];
   
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedPost, setSelectedPost] = useState(null);

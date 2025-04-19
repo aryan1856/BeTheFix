@@ -13,6 +13,8 @@ import {
 import Login from "./pages/Login.jsx"
 import { GoogleOAuthProvider } from "@react-oauth/google"
 
+import { ComplaintProvider } from "./context/ComplaintContext.jsx";
+
 import PrivateRoute from "./components/PrivateRoute";
 
 const router = createBrowserRouter([
