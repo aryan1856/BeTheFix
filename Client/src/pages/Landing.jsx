@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import img from "../assets/images/landing.svg";
-import Logo  from "../components/Logo.jsx";
+import { Logo } from "../components";
 
 const Landing = () => {
   return (

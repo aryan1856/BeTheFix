@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { setLoggedinUser } from "../../store/userSlice";
 
 const UserProfile = ({ activeTab, setActiveTab, LoggedInUser }) => {
+  const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editData, setEditData] = useState({
     fullName: LoggedInUser.loggedinUser.fullName,
@@ -26,6 +29,7 @@ const UserProfile = ({ activeTab, setActiveTab, LoggedInUser }) => {
         }
       );
       toast.success(res.data.message)
+      dispatch(setLoggedinUser(res.data.user))
     } catch (error) {
       console.error("Error updating profile:", error.message);
       toast.error(error.message);
