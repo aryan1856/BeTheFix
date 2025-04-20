@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import LeaderboardList from "../components/LeaderBoardList";
+import toast from 'react-hot-toast';
 import axios from "axios";
 import { useSelector } from "react-redux";
 
@@ -22,7 +23,8 @@ const LeaderboardPage = () => {
             setUsers(res.data.users);
           }
         } catch (error) {
-          console.error("Error fetching users by location:", error);
+          // console.error("Error fetching users by location:", error);
+          toast.error(error.message)
         } finally {
           setLoading(false);
         }

@@ -14,14 +14,7 @@ const ReportIssue = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userDescription, setUserDescription] = useState("");
 
-  const categories = [
-    "Garbage",
-    "Events",
-    "Community",
-    "Announcements",
-    "Questions",
-    "Other",
-  ];
+  const categories = ['Garbage', 'Roads', 'Street Lights', 'Drainage Issue','Enchroachment', 'Others'];
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -208,7 +201,7 @@ const ReportIssue = () => {
                 key={category}
                 type="button"
                 onClick={() => toggleCategory(category)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer
                   ${
                     selectedCategories.includes(category)
                       ? "bg-[#2cb1bc] text-white"
@@ -230,7 +223,7 @@ const ReportIssue = () => {
             <button
               type="button"
               onClick={handleAutoGenerate}
-              className="flex items-center gap-2 text-sm text-[#2cb1bc] hover:text-[#0e7c86]"
+              className="flex items-center gap-2 text-sm text-[#2cb1bc] hover:text-[#0e7c86] cursor-pointer"
               disabled={isGenerating}
             >
               <Sparkles size={16} />
@@ -276,7 +269,7 @@ const ReportIssue = () => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           disabled={isSubmitting}
-          className={`w-full py-3 rounded-lg font-medium transition-colors ${
+          className={`w-full py-3 rounded-lg font-medium transition-colors cursor-pointer ${
             isSubmitting
               ? "bg-gray-400 text-white cursor-not-allowed"
               : "bg-[#2cb1bc] text-white hover:bg-[#0e7c86]"

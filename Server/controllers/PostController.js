@@ -2,9 +2,10 @@ import Post from '../models/Post.model.js';
 import Comment from '../models/Comment.model.js';
 import {User} from '../models/User.model.js';
 import mongoose from 'mongoose'; 
-import { uploadOnCloudinary } from '../Utils/Cloudinary.js'; 
+import { uploadOnCloudinary} from '../utils/Cloudinary.js'
 import axios from "axios";
 import fetchLocation from '../utils/fetchLocation.js';
+import Volunteered from '../models/Volunteered.model.js'
 
 export const createPost = async (req, res) => {
     try {
@@ -114,7 +115,7 @@ export const getAllPosts = async (req, res) => {
 
     const { area, city } = currLocation;
 
-    // Fetch posts matching either area or city
+    // Get posts matching area or city
     const posts = await Post.find({
       $or: [
         { "location.area": area },
@@ -122,39 +123,50 @@ export const getAllPosts = async (req, res) => {
       ]
     }).sort({ createdAt: -1 }).lean();
 
-    // Custom sort: area posts first, then city-level ones
+    // Custom sort: prioritize area matches
     const sortedPosts = posts.sort((a, b) => {
       const aAreaMatch = a.location?.area === area;
       const bAreaMatch = b.location?.area === area;
 
       if (aAreaMatch && !bAreaMatch) return -1;
       if (!aAreaMatch && bAreaMatch) return 1;
-      return 0; // if both match or both don't, maintain current order
+      return 0;
     });
 
-    // Add upvote/downvote + author info
+    // Add upvote/downvote, author info, volunteer info, and upvote count
     const postsWithExtras = await Promise.all(
       sortedPosts.map(async (post) => {
         const author = await User.findById(post.createdBy);
+
+        const isVolunteered = await Volunteered.findOne({
+          postId: post._id,
+          volunteeredBy: userId,
+        });
+
         return {
           ...post,
           upvoted: post.upvotes?.some(id => id.toString() === userId.toString()) || false,
           downvoted: post.downvotes?.some(id => id.toString() === userId.toString()) || false,
+          alreadyVolunteered: !!isVolunteered,
           author: {
             avatar: author.avatar,
             name: author.fullName,
           },
+          upvoteCount: post.upvotes?.length || 0,
         };
       })
     );
 
-    res.status(200).json(postsWithExtras);
+    // // Final sort by upvote count descending
+    // postsWithExtras.sort((a, b) => b.upvoteCount - a.upvoteCount);
 
+    res.status(200).json(postsWithExtras);
   } catch (error) {
     console.error("Error in getAllPosts:", error.message);
     res.status(500).json({ message: error.message, success: false });
   }
 };
+
 
 
   
@@ -327,39 +339,72 @@ export const toggleDownvote = async (req, res) => {
 };
 
 export const getUserPosts = async (req, res) => {
-    try {
-        const userId = req.user._id;
+  try {
+    const userId = req.user._id;
 
-        const user = await User.findById(userId);
-        if (!user)
-            throw new Error("Internal server error");
+    const user = await User.findById(userId);
+    if (!user) throw new Error("Internal server error");
 
-        // Find posts by user
-        const posts = await Post.find({ createdBy: user }).sort({ createdAt: -1 }).lean();
+    // Find posts by user
+    const posts = await Post.find({ createdBy: user }).sort({ createdAt: -1 }).lean();
 
-        if (!posts)
-            throw new Error("Internal server error");
+    if (!posts) throw new Error("Internal server error");
 
-        // Calculate the resolved count based on the post's state
-        const resolvedCount = posts.filter((post) => post.status.state === 'Resolved').length;
+    // Calculate the resolved count based on the post's state
+    const resolvedCount = posts.filter((post) => post.status.state === 'Resolved').length;
 
-        const postsWithUpvotesAndDownvotes = posts.map((post) => ({
-            ...post,
-            upvoted: post.upvotes?.some((id) => id.toString() === userId.toString()) || false,
-            downvoted: post.downvotes?.some((id) => id.toString() === userId.toString()) || false,
-            author: {
-                avatar: user.avatar,
-                name: user.fullName,
-            },
-        }));
-
-        res.status(200).json({
-            message: "Posts fetched",
-            posts: postsWithUpvotesAndDownvotes,
-            resolvedCount,
-            success: true,
+    // Add upvote/downvote, author info, and alreadyVolunteered
+    const postsWithExtras = await Promise.all(
+      posts.map(async (post) => {
+        const isVolunteered = await Volunteered.findOne({
+          postId: post._id,
+          volunteeredBy: userId,
         });
-    } catch (error) {
-        res.status(500).json({ message: error.message, success: false });
-    }
+
+        return {
+          ...post,
+          upvoted: post.upvotes?.some((id) => id.toString() === userId.toString()) || false,
+          downvoted: post.downvotes?.some((id) => id.toString() === userId.toString()) || false,
+          alreadyVolunteered: !!isVolunteered,
+          author: {
+            avatar: user.avatar,
+            name: user.fullName,
+          },
+        };
+      })
+    );
+
+    res.status(200).json({
+      message: "Posts fetched",
+      posts: postsWithExtras,
+      resolvedCount,
+      success: true,
+    });
+  } catch (error) {
+    console.error("Error in getUserPosts:", error.message);
+    res.status(500).json({ message: error.message, success: false });
+  }
+};
+
+
+import VolunteeredAndResolved from '../models/VolunteeredAndResolved.js';
+
+export const getResolvedPostsData = async (req, res) => {
+  try {
+    const records = await VolunteeredAndResolved.find()
+      .populate('resolvedBy', 'fullName')
+      .populate('post', 'images');
+
+    const result = records.map(record => ({
+      fullName: record.resolvedBy?.fullName || null,
+      postImage: record.post?.images?.[0] || null,
+      resolvedImage: record.image,
+      remarks: record.remarks
+    }));
+
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 };

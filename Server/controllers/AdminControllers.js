@@ -1,5 +1,7 @@
 import Post from '../models/Post.model.js'
 import {Admin} from '../models/Admin.model.js'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken';
 
 export const updateStatus=async(req,res)=>{
     try{
@@ -45,3 +47,54 @@ export const getAllForwardedPosts=async(req,res)=>{
     }
 }
 
+export const AdminLogin = async (req, res) => {
+    try {
+      console.log("inside")
+        const { email, password } = req.body
+        if (!email || !password) {
+            return res.status(400).json({ message: "Please fill all the required fields." })
+        }
+  
+        const user = await Admin.findOne({ email })
+        if (!user) {
+            return res.status(400).json({
+                message: "Invalid user!!",
+                success: false
+            })
+        }
+  
+        const matchPassword = await bcrypt.compare(password, user.password)
+        if (!matchPassword) {
+            return res.status(400).json({
+                message: "Incorrect Password!!",
+                success: false
+            })
+        }
+  
+        const tokenData = {
+            userId: user._id
+        }
+        const token = await jwt.sign(tokenData, process.env.JWT_SECRET, {
+            expiresIn: '1d'
+        })
+        const createdUser=user.toObject()
+          delete user.password
+        return res.status(200).cookie("token", token, {
+            maxAge: 1 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            sameSite: 'None',
+            secure:true,
+        })
+            .json({
+              message:"Logged in successfully",
+              createdUser
+            })
+  
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            message: 'Server Error',
+            success: false
+        })
+    }
+  }

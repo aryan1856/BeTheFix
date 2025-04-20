@@ -3,6 +3,8 @@ import {User} from '../models/User.model.js'
 import fetchLocation from '../utils/fetchLocation.js';
 import Volunteered from "../models/Volunteered.model.js";
 import Post from "../models/Post.model.js"
+import { uploadOnCloudinary } from "../utils/Cloudinary.js";
+import VolunteeredAndResolved from "../models/VolunteeredAndResolved.js";
 
 export const update = async (req, res) => {
     try {
@@ -65,9 +67,11 @@ export const update = async (req, res) => {
         .map((cat) => cat.trim())
         .join(", ");
   
-      const prompt = `Write a complaint in English to the city authorities regarding the following issues: ${cleanedCategories}. 
-  User described the situation as: "${userDescription}". 
-  Please make the complaint polite, concise, and specific, covering all the mentioned issues clearly.Don't write location and personal info less than 400 characters`;
+        const prompt = `Write a complaint in English for a civic issue reporting portal regarding the following problems: ${cleanedCategories}. 
+        User described the situation as: "${userDescription}". 
+        Keep the tone polite and citizen-like, but not overly formal. Be clear, concise, and specific. No personal details or location. Keep it under 400 characters.`;
+        
+
   
       const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
   
@@ -191,6 +195,11 @@ export const update = async (req, res) => {
           'status.remarks': remarks,
         },
       });
+
+      await User.findByIdAndUpdate(userId, {
+        $inc: { volunteeredAndResolved: 1 }
+      });
+      
   
       return res.status(201).json({
         success: true,

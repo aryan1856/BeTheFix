@@ -195,7 +195,7 @@ const PostModal = ({ post, onClose }) => {
                 target.showReplies = !target.showReplies;
                 setComments(updated);
               }}
-              className="text-sm text-blue-500 mt-1 hover:underline"
+              className="text-sm text-blue-500 mt-1 hover:underline cursor-pointer"
             >
               {comment.showReplies ? 'Hide Replies' : 'View Replies'}
             </button>
@@ -231,7 +231,7 @@ const PostModal = ({ post, onClose }) => {
                   className="flex-1 border px-3 py-1 rounded-full text-sm"
                 />
                 <button
-                  className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full"
+                  className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full cursor-pointer"
                   onClick={async () => {
                     const text = comment.replyText?.trim();
                     if (!text) return;
@@ -285,7 +285,7 @@ const PostModal = ({ post, onClose }) => {
                   className="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:border-blue-500"
                 />
                 <button
-                  className="bg-blue-500 text-white rounded-full p-2 hover:bg-blue-600"
+                  className="bg-blue-500 text-white rounded-full p-2 hover:bg-blue-600 cursor-pointer"
                   onClick={handleAddComment}
                 >
                   <Send size={20} />

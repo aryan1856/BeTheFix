@@ -65,10 +65,10 @@ const PostCard = ({ post, onOpenModal }) => {
   const handleVolunteer = async () => {
     try {
       await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/users/volunteerpost/${post._id}`,{},
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/volunteerpost/${post._id}`, {},
         { withCredentials: true }
       );
-      toast.success("You are now a voluteer ,go and fix this issue.");
+      toast.success("You are now a volunteer, go and fix this issue.");
       setIsVolunteered(true);
     } catch (error) {
       if (!error.response?.data) toast.error(error.message);
@@ -106,17 +106,21 @@ const PostCard = ({ post, onOpenModal }) => {
 
       {/* Info */}
       <div className="p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <img
-            src={post.author?.avatar}
-            alt={post.author?.name}
-            className="w-8 h-8 rounded-full"
-          />
-          <div className="flex-1">
-            <h3 className="font-medium">{post.author?.name}</h3>
-            <div className="flex items-center text-sm text-gray-500">
-              <MapPin size={14} className="mr-1" />
-              {post.location?.area + "," + post.location?.city + "," + post.location?.country || "Unknown"}
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <img
+              src={post.author?.avatar}
+              alt={post.author?.name}
+              className="w-8 h-8 rounded-full flex-shrink-0"
+            />
+            <div className="min-w-0">
+              <h3 className="font-medium truncate">{post.author?.name}</h3>
+              <div className="flex items-center text-sm text-gray-500 truncate">
+                <MapPin size={14} className="mr-1 flex-shrink-0" />
+                <span className="truncate">
+                  {post.location?.area + "," + post.location?.city + "," + post.location?.country || "Unknown"}
+                </span>
+              </div>
             </div>
           </div>
           {post.status?.state && (
@@ -133,7 +137,7 @@ const PostCard = ({ post, onOpenModal }) => {
           <div className="flex gap-4">
             <button
               onClick={() => handleVote('upvote')}
-              className={`flex items-center gap-1 ${upvoted ? 'text-blue-600' : 'text-gray-600'} hover:text-blue-600`}
+              className={`flex items-center gap-1 ${upvoted ? 'text-blue-600' : 'text-gray-600'} hover:text-blue-600 cursor-pointer`}
             >
               <ThumbsUp size={18} fill={upvoted ? 'currentColor' : 'none'} />
               {upvotes}
@@ -141,7 +145,7 @@ const PostCard = ({ post, onOpenModal }) => {
 
             <button
               onClick={() => handleVote('downvote')}
-              className={`flex items-center gap-1 ${downvoted ? 'text-red-600' : 'text-gray-600'} hover:text-red-600`}
+              className={`flex items-center gap-1 ${downvoted ? 'text-red-600' : 'text-gray-600'} hover:text-red-600 cursor-pointer`}
             >
               <ThumbsDown size={18} fill={downvoted ? 'currentColor' : 'none'} />
               {downvotes}
@@ -150,7 +154,7 @@ const PostCard = ({ post, onOpenModal }) => {
 
           <button
             onClick={() => onOpenModal(post)}
-            className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+            className="flex items-center gap-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-2 py-1 rounded cursor-pointer transition-colors"
           >
             <MessageCircle size={18} />
             {post.comments?.length || 0} comments
@@ -158,19 +162,15 @@ const PostCard = ({ post, onOpenModal }) => {
         </div>
 
         {/* Volunteer Button */}
-        {/* Volunteer Button */}
-{post.status?.state !== 'Resolved' && (
-  <button
-    onClick={handleVolunteer}
-    disabled={isVolunteered}
-    className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-  >
-    {isVolunteered ? 'Already Volunteered' : 'Volunteer'}
-  </button>
-)}
-
-
-
+        {post.status?.state !== 'Resolved' && (
+          <button
+            onClick={handleVolunteer}
+            disabled={isVolunteered}
+            className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {isVolunteered ? 'Already Volunteered' : 'Volunteer'}
+          </button>
+        )}
       </div>
     </motion.div>
   );
