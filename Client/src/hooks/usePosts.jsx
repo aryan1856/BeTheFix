@@ -42,7 +42,7 @@ const usePosts = (category = "") => {
     };
   
     fetchPosts();
-  }, [category, longitude, latitude]); // Include location in dependency
+  }, [ longitude, latitude]); // Include location in dependency
   
 
   return { posts, loading, error };

@@ -243,10 +243,10 @@ export const toggleUpvote = async (req, res) => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = earthRadiusKm * c;
 
-    if (distance > 10) {
+    if (distance > 1) {
       return res
         .status(403)
-        .json({ message: "You must be within 10 km to upvote this post." });
+        .json({ message: "You must be within 1 km to upvote this post." });
     }
 
     // Remove downvote if it exists
@@ -307,10 +307,10 @@ export const toggleDownvote = async (req, res) => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = earthRadiusKm * c;
 
-    if (distance > 10) {
+    if (distance > 1) {
       return res
         .status(403)
-        .json({ message: "You must be within 10 km to downvote this post." });
+        .json({ message: "You must be within 1 km to downvote this post." });
     }
 
     // Remove upvote if it exists
