@@ -10,7 +10,7 @@ const ProfileTabContent = ({ activeTab, posts , LoggedInUser, resolvedCount}) =>
 
   const userData = {
     name: LoggedInUser.loggedinUser.fullName,
-    badges: resolvedCount % 5,
+    badges: resolvedCount / 5,
     issuesResolved: resolvedCount,
     megaBadge: resolvedCount >= 25,
     volunteerBadge : LoggedInUser.loggedinUser.volunteeredAndResolved > 0,

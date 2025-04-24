@@ -9,6 +9,7 @@ const ProfileBadges = ({ user }) => {
     volunteerBadge,
     volunteerResolvedCount = 0
   } = user;
+  console.log(user)
 
   const resolvedSinceLastBadge = issuesResolved % 5;
   const progressPercent = (resolvedSinceLastBadge / 5) * 100;
@@ -24,7 +25,7 @@ const ProfileBadges = ({ user }) => {
           <img src="/icons/badge.svg" alt="Regular Badge" className="w-8 h-8" />
           <div>
             <p className="font-semibold text-gray-800">{badges} Badge{badges !== 1 ? "s" : ""}</p>
-            <p className="text-sm text-gray-500">For every 5 resolved issues</p>
+            <p className="text-sm text-gray-500">New Badge For every 5 resolved issues</p>
           </div>
         </div>
 
