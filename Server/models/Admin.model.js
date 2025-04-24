@@ -26,7 +26,11 @@ const adminSchema = new mongoose.Schema({
   forwardedPosts: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Post',
-  }]
+  }],
+  city:{
+    type: "String",
+    required:true
+  }
 });
 
 export const Admin = mongoose.model('Admin', adminSchema);

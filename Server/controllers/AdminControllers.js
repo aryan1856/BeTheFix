@@ -101,9 +101,9 @@ export const AdminLogin = async (req, res) => {
   }
   export const adminRegister = async (req, res) => {
     try {
-      const { departmentType, email, password, confirmPassword } = req.body;
+      const { departmentType, email, password, confirmPassword,city } = req.body;
   
-      if (!departmentType || !email || !password || !confirmPassword) {
+      if (!departmentType || !email || !password || !confirmPassword || !city) {
         return res.status(400).json({ message: "All fields are required!" });
       }
   
@@ -125,6 +125,7 @@ export const AdminLogin = async (req, res) => {
       const admin = await Admin.create({
         departmentType,
         email,
+        city,
         password: hashedPass
       });
   
@@ -281,3 +282,58 @@ export const rejectPost = async (req, res) => {
         res.status(500).json({ message: 'Internal server error', success : false});
     }
 };
+export const getMunicipalityPosts = async (req, res) => {
+    try {
+      const adminId = req.user._id; 
+  
+      const admin = await Admin.findById(adminId);
+      if (!admin) {
+        return res.status(404).json({ message: "Admin not found." });
+      }
+  
+      const posts = await Post.find({
+        'status.state': 'Pending',
+        'location.city': admin.city
+      })
+        .populate('createdBy', 'fullname')
+        .populate('comments')
+        .populate('upvotes')
+        .populate('downvotes');
+  
+      const filteredPosts = posts.filter(post => post.upvotes.length >= 0);
+  
+      return res.status(200).json({
+        message: "Municipality posts fetched successfully.",
+        success: true,
+        posts: filteredPosts
+      });
+    } catch (error) {
+      console.error("Error in getMunicipalityPosts:", error.message);
+      return res.status(500).json({ message: 'Server Error', success: false });
+    }
+  };
+  export const getForwardedPostsByDepartment = async (req, res) => {
+    try {
+      const adminId = req.user._id;
+  
+      const admin = await Admin.findById(adminId).populate({
+        path: 'forwardedPosts',
+        populate: {
+          path: 'createdBy comments upvotes downvotes resolution.resolvedBy',
+        }
+      });
+  
+      if (!admin) {
+        return res.status(404).json({ message: "Admin not found." });
+      }
+  
+      return res.status(200).json({
+        message: `${admin.departmentType} forwarded posts fetched successfully.`,
+        success: true,
+        posts: admin.forwardedPosts
+      });
+    } catch (error) {
+      console.error("Error in getForwardedPostsByDepartment:", error.message);
+      return res.status(500).json({ message: 'Server Error', success: false });
+    }
+  };
