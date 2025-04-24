@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'; 
+import mongoose, { Schema } from 'mongoose'; 
 
 const postSchema = new mongoose.Schema({
     caption : {
@@ -36,7 +36,7 @@ const postSchema = new mongoose.Schema({
         },
         state : {
             type : String,
-            enum : ['Pending', 'In Progress', 'Resolved', 'Rejected'],
+            enum : ['Pending', 'In Progress', 'Pending at PWD', 'Pending at Electicity Department', 'Pending at Cleanliness Department', 'Pending at Education Department', 'Pending at Water Supply Department', 'Pending at Sewage Department', 'Resolved', 'Rejected'],
             default : 'Pending'
         }
     },
@@ -64,6 +64,19 @@ const postSchema = new mongoose.Schema({
         latitude : {
             type : Number,
             required : true
+        }
+    },
+    resolution : {
+        resolvedBy : {
+            type : mongoose.Schema.Types.ObjectId,
+            ref : 'Admin'
+        },
+        resolvedDate : {
+            type : Date,
+            default : Date.now
+        },
+        resolutionImage : {
+            type : String
         }
     }
 });
