@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const adminSchema = new mongoose.Schema({
   departmentType: {
     type: String,
-    enum: ['Municipality', 'PWD', 'Cleanliness'],
+    enum: ['Municipality', 'PWD', 'Cleanliness', 'Water Supply', 'Electricity', 'Education', 'Sewage'],
     required: true,
   },
   email: {
