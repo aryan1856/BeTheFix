@@ -42,7 +42,7 @@ const LogoutContainer = () => {
         ) : (
           <FaUserCircle />
         )}
-        {loggedInUser?.fullName.split(" ")[0]}
+        {loggedInUser?.isAdmin ? loggedInUser?.departmentType : loggedInUser?.fullName}
         <FaCaretDown />
       </button>
 

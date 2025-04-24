@@ -2,6 +2,7 @@ import Post from '../models/Post.model.js'
 import {Admin} from '../models/Admin.model.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken';
+import validator from 'validator'
 
 export const updateStatus=async(req,res)=>{
     try{
@@ -98,3 +99,45 @@ export const AdminLogin = async (req, res) => {
         })
     }
   }
+  export const adminRegister = async (req, res) => {
+    try {
+      const { departmentType, email, password, confirmPassword } = req.body;
+  
+      if (!departmentType || !email || !password || !confirmPassword) {
+        return res.status(400).json({ message: "All fields are required!" });
+      }
+  
+      if (password !== confirmPassword) {
+        return res.status(400).json({ message: "Passwords do not match" });
+      }
+  
+      if (!validator.isEmail(email)) {
+        return res.status(400).json({ message: "Please provide a valid email" });
+      }
+  
+      const existingAdmin = await Admin.findOne({ email });
+      if (existingAdmin) {
+        return res.status(400).json({ message: "Email already exists! Try a different one." });
+      }
+  
+      const hashedPass = await bcrypt.hash(password, 10);
+  
+      const admin = await Admin.create({
+        departmentType,
+        email,
+        password: hashedPass
+      });
+  
+      const createdAdmin = await Admin.findById(admin._id).select("-password");
+  
+      return res.status(201).json({
+        message: "Admin account created successfully.",
+        success: true,
+        admin: createdAdmin
+      });
+  
+    } catch (error) {
+      console.error(error.message);
+      return res.status(500).json({ message: 'Server Error', success: false });
+    }
+  };

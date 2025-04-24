@@ -8,9 +8,10 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const dispatch=useDispatch()
+  const navigate=useNavigate()
   const [showGoogleForm, setShowGoogleForm] = useState(false);
+  const [loginAsAdmin, setLoginAsAdmin] = useState(false);
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',
@@ -40,21 +41,24 @@ export default function Login() {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => { 
     e.preventDefault();
     console.log(formData);
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length === 0) {
       const loadingToastId = toast.loading(isLogin ? 'Signing in...' : 'Signing up...');
-
+  
       try {
         const url = isLogin
-          ? `${import.meta.env.VITE_BACKEND_URL}/api/auth/login`
-          : `${import.meta.env.VITE_BACKEND_URL}/api/auth/register`;
+? loginAsAdmin
+  ? 'http://localhost:8000/api/admin/login'
+  : 'http://localhost:8000/api/auth/login'
+: 'http://localhost:8000/api/auth/register';
 
+  
         let payload;
         let config;
-
+  
         if (isLogin) {
           payload = {
             email: formData.email,
@@ -71,21 +75,26 @@ export default function Login() {
           }
           config = { headers: { 'Content-Type': 'multipart/form-data' } };
         }
-
+  
         // Add withCredentials to allow cookies to be sent
         const response = await axios.post(url, payload, { ...config, withCredentials: true });
-
+  
         console.log(response);
-
+  
         // Handle success
         toast.success(response.data.message, { id: loadingToastId });
-        dispatch(setLoggedinUser(response.data.createdUser))
-        navigate('/dashboard')
-
+        dispatch(setLoggedinUser({
+          ...response.data.createdUser,
+          isAdmin: loginAsAdmin
+        }));
+        
+        if(loginAsAdmin) navigate('/dashboard/admindashboard')
+        else navigate('/dashboard')
+  
         if (!isLogin) {
           setIsLogin(true);
         }
-
+  
       } catch (error) {
         console.log(error);
         toast.error(
@@ -97,7 +106,7 @@ export default function Login() {
       setErrors(validationErrors);
     }
   };
-
+  
 
   const validateForm = () => {
     const errors = {};
@@ -177,7 +186,7 @@ export default function Login() {
                       autoComplete="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm"
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-600 focus:border-slate-600 sm:text-sm"
                     />
                     {errors.email && (
                       <p className="mt-2 text-sm text-red-600">
@@ -203,7 +212,7 @@ export default function Login() {
                           type="text"
                           value={formData.fullname}
                           onChange={handleChange}
-                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm"
+                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-600 focus:border-slate-600 sm:text-sm"
                         />
                         {errors.fullname && (
                           <p className="mt-2 text-sm text-red-600">
@@ -227,7 +236,7 @@ export default function Login() {
                           type="text"
                           value={formData.address}
                           onChange={handleChange}
-                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm"
+                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-600 focus:border-slate-600 sm:text-sm"
                         />
                         {errors.address && (
                           <p className="mt-2 text-sm text-red-600">
@@ -249,7 +258,7 @@ export default function Login() {
                           placeholder="Latitude"
                           value={formData.latitude}
                           readOnly
-                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm bg-gray-100"
+                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-600 focus:border-slate-600 sm:text-sm bg-gray-100"
                         />
                         <input
                           id="longitude"
@@ -258,12 +267,12 @@ export default function Login() {
                           placeholder="Longitude"
                           value={formData.longitude}
                           readOnly
-                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm bg-gray-100"
+                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-600 focus:border-slate-600 sm:text-sm bg-gray-100"
                         />
                         <button
                           type="button"
                           onClick={handleLocationClick}
-                          className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0e7c86]"
+                          className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-600"
                         >
                           Get Location
                         </button>
@@ -283,7 +292,7 @@ export default function Login() {
                           name="gender"
                           value={formData.gender}
                           onChange={handleChange}
-                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm"
+                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-600 focus:border-slate-600 sm:text-sm"
                         >
                           <option value="">Select gender</option>
                           <option value="Male">Male</option>
@@ -313,7 +322,7 @@ export default function Login() {
                           min="1"
                           value={formData.age}
                           onChange={handleChange}
-                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm"
+                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-600 focus:border-slate-600 sm:text-sm"
                         />
                         {errors.age && (
                           <p className="mt-2 text-sm text-red-600">
@@ -336,7 +345,7 @@ export default function Login() {
                           type="file"
                           accept="image/*"
                           onChange={handleChange}
-                          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-[#0e7c86] hover:file:bg-indigo-100"
+                          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-[#0e7c86] hover:file:bg-[#bef8fd]"
                         />
                         {errors.avatar && (
                           <p className="mt-2 text-sm text-red-600">
@@ -365,7 +374,7 @@ export default function Login() {
                       }
                       value={formData.password}
                       onChange={handleChange}
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm"
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-600 focus:border-slate-600 sm:text-sm"
                     />
                     {errors.password && (
                       <p className="mt-2 text-sm text-red-600">
@@ -391,7 +400,7 @@ export default function Login() {
                         autoComplete="new-password"
                         value={formData.confirmPassword}
                         onChange={handleChange}
-                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-500 focus:border-slate-500 sm:text-sm"
+                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-slate-600 focus:border-slate-600 sm:text-sm"
                       />
                       {errors.confirmPassword && (
                         <p className="mt-2 text-sm text-red-600">
@@ -402,7 +411,24 @@ export default function Login() {
                   </div>
                 )}
 
+{isLogin && (
+<div className="flex items-center">
+  <input
+    id="loginAsAdmin"
+    name="loginAsAdmin"
+    type="checkbox"
+    checked={loginAsAdmin}
+    onChange={(e) => setLoginAsAdmin(e.target.checked)}
+    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+  />
+  <label htmlFor="loginAsAdmin" className="ml-2 block text-sm text-gray-900">
+    Login as Admin
+  </label>
+</div>
+)}
+
                 <div>
+                  
                   <button
                     type="submit"
                     className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#2cb1bc] hover:bg-[#0e7c86] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2cb1bc]"
@@ -439,7 +465,7 @@ export default function Login() {
                       onClick={() => {
                         setShowGoogleForm(true);
                       }}
-                      className="w-full py-2 px-4 border border-[#2cb1bc] rounded-md shadow-sm text-sm font-medium text-[#0e7c86] bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2cb1bc]"
+                      className="w-full py-2 px-4 border border-[#2cb1bc] rounded-md shadow-sm text-sm font-medium text-[#2cb1bc] bg-white hover:bg-[#e0fcff] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2cb1bc]"
                     >
                       SignIn with Google
                     </button>
