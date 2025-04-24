@@ -13,6 +13,9 @@ const PrivateRoute = () => {
   if (isAdmin && location.pathname !== "/dashboard/admindashboard") {
     return <Navigate to="/dashboard/admindashboard" replace />;
   }
+  if (!isAdmin && location.pathname === "/dashboard/admindashboard") {
+    return <Navigate to="/dashboard/" replace />;
+  }
 
   return <Outlet />;
 };
