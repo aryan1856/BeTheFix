@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { User } from '../models/User.model.js';
+import { Admin } from '../models/Admin.model.js';
 import dotenv from 'dotenv'
 dotenv.config({})
 
@@ -20,13 +20,13 @@ const isAuthenticated = async (req, res, next) => {
     }
 
     // Find user by decoded userId from token
-    const user = await User.findById(decode.userId).select('-password');
-    if (!user) {
+    const admin = await Admin.findById(decode.userId).select('-password');
+    if (!admin) {
       return res.status(401).json({ message: 'Invalid Token!!' });
     }
 
     // Attach user object to request object
-    req.user = user;
+    req.user = admin;
     next();
   } catch (error) {
     console.error('Error in authentication middleware:', error);

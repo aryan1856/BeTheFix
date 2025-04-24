@@ -84,7 +84,7 @@ export const AdminLogin = async (req, res) => {
             maxAge: 1 * 24 * 60 * 60 * 1000,
             httpOnly: true,
             sameSite: 'None',
-            secure:true,
+            secure:'false',
         })
             .json({
               message:"Logged in successfully",
@@ -99,6 +99,7 @@ export const AdminLogin = async (req, res) => {
         })
     }
   }
+
   export const adminRegister = async (req, res) => {
     try {
       const { departmentType, email, password, confirmPassword,city } = req.body;
@@ -282,6 +283,7 @@ export const rejectPost = async (req, res) => {
         res.status(500).json({ message: 'Internal server error', success : false});
     }
 };
+
 export const getMunicipalityPosts = async (req, res) => {
     try {
       const adminId = req.user._id; 
@@ -292,13 +294,10 @@ export const getMunicipalityPosts = async (req, res) => {
       }
   
       const posts = await Post.find({
-        'status.state': 'Pending',
+        'status.state': { $nin: ['Resolved', 'Rejected'] },
         'location.city': admin.city
-      })
-        .populate('createdBy', 'fullname')
-        .populate('comments')
-        .populate('upvotes')
-        .populate('downvotes');
+      });
+      
   
       const filteredPosts = posts.filter(post => post.upvotes.length >= 0);
   
@@ -312,15 +311,15 @@ export const getMunicipalityPosts = async (req, res) => {
       return res.status(500).json({ message: 'Server Error', success: false });
     }
   };
+
   export const getForwardedPostsByDepartment = async (req, res) => {
     try {
       const adminId = req.user._id;
   
-      const admin = await Admin.findById(adminId).populate({
-        path: 'forwardedPosts',
-        populate: {
-          path: 'createdBy comments upvotes downvotes resolution.resolvedBy',
-        }
+      const admin = await Admin.findById(adminId);
+
+      const posts = await Post.find({
+        _id: { $in: admin.forwardedPosts }
       });
   
       if (!admin) {
@@ -330,7 +329,7 @@ export const getMunicipalityPosts = async (req, res) => {
       return res.status(200).json({
         message: `${admin.departmentType} forwarded posts fetched successfully.`,
         success: true,
-        posts: admin.forwardedPosts
+        posts
       });
     } catch (error) {
       console.error("Error in getForwardedPostsByDepartment:", error.message);

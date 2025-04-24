@@ -36,7 +36,7 @@ const postSchema = new mongoose.Schema({
         },
         state : {
             type : String,
-            enum : ['Pending', 'In Progress', 'Pending at PWD', 'Pending at Electicity Department', 'Pending at Cleanliness Department', 'Pending at Education Department', 'Pending at Water Supply Department', 'Pending at Sewage Department', 'Resolved', 'Rejected'],
+            enum : ['Pending', 'In Progress', 'Pending at PWD Department', 'Pending at Electicity Department', 'Pending at Cleanliness Department', 'Pending at Education Department', 'Pending at Water Supply Department', 'Pending at Sewage Department', 'Resolved', 'Rejected'],
             default : 'Pending'
         }
     },

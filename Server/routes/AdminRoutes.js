@@ -1,7 +1,7 @@
 import express from 'express'
 
 import { getAllForwardedPosts, updateStatus , AdminLogin, resolvePost, rejectPost, forwardPost,adminRegister, getMunicipalityPosts, getForwardedPostsByDepartment} from '../controllers/AdminControllers.js';
-import isAuthenticated from '../middlewares/check-auth.js';
+import isAuthenticated from '../middlewares/check-auth-admin.js';
 
 const router=express.Router();
 
