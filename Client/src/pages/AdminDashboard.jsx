@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 
 const AdminDashboard = () => {
   const [complaints, setComplaints] = useState([]);
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("Pending");
   const LoggedInUser = useSelector((state) => state.user);
 
   const MUNCIPALITY_API = `${import.meta.env.VITE_BACKEND_URL}/api/admin/getmunicipalityposts`;
@@ -21,8 +21,7 @@ const AdminDashboard = () => {
             : ADMIN_API,
           { withCredentials: true }
         );
-        console.log(res);
-        setComplaints(res.data.posts || []); // Ensure it's always an array
+        setComplaints(res.data.posts || []);
       } catch (error) {
         console.error("Error fetching posts:", error);
       }
@@ -30,28 +29,22 @@ const AdminDashboard = () => {
     fetchPosts();
   }, [LoggedInUser.loggedinUser.departmentType]);
 
-  const filteredComplaints = complaints
-    .filter((complaint) =>
-      statusFilter === "All" ? true : complaint.status.state === statusFilter
-    )
-    .sort((a, b) => (b.upvotes?.length || 0) - (a.upvotes?.length || 0));
-
-  const statusOptions = ["All", "Pending", "In Progress", "Resolved", "Rejected"];
-
-  const statusCounts = statusOptions.reduce((acc, status) => {
-    acc[status] =
-      status === "All"
-        ? complaints.length
-        : complaints.filter((c) => c.status.state === status).length;
-    return acc;
-  }, {});
+  const statusOptions = ["Pending", "Resolved", "Rejected"];
 
   const statusIcons = {
     Pending: <Clock className="h-4 w-4 text-amber-500 mr-2" />,
-    "In Progress": <Clock className="h-4 w-4 text-blue-500 mr-2" />,
     Resolved: <Check className="h-4 w-4 text-green-600 mr-2" />,
     Rejected: <X className="h-4 w-4 text-red-500 mr-2" />,
   };
+
+  const statusCounts = statusOptions.reduce((acc, status) => {
+    acc[status] = complaints.filter((c) => c.status?.state?.includes(status)).length;
+    return acc;
+  }, {});
+
+  const filteredComplaints = complaints
+    .filter((c) => c.status?.state?.includes(statusFilter))
+    .sort((a, b) => (b.upvotes?.length || 0) - (a.upvotes?.length || 0));
 
   const getButtonClasses = (status) =>
     `flex items-center justify-center px-3 py-2 sm:px-4 sm:py-3 rounded-lg border transition-all duration-200 ${
@@ -62,6 +55,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Filter UI */}
       <div className="sticky top-[6rem] z-20 bg-white border-b border-gray-200 shadow-sm">
         <div className="bg-white p-4 md:p-6 border border-gray-100">
           <div className="flex items-center mb-3">
@@ -69,14 +63,14 @@ const AdminDashboard = () => {
             <h2 className="text-lg font-semibold text-gray-800">Filter by Status</h2>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             {statusOptions.map((status) => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
                 className={getButtonClasses(status)}
               >
-                {status !== "All" && statusIcons[status]}
+                {statusIcons[status]}
                 <span className="font-medium text-sm">{status}</span>
                 <span
                   className={`ml-2 text-xs sm:text-sm font-medium px-1.5 sm:px-2 py-0.5 rounded-full ${
@@ -93,6 +87,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* Complaints Display */}
       <div className="px-4 py-6">
         <div className="max-w-7xl mx-auto">
           {filteredComplaints.length === 0 ? (
@@ -104,9 +99,7 @@ const AdminDashboard = () => {
                 No complaints found
               </h3>
               <p className="text-gray-500">
-                {statusFilter === "All"
-                  ? "There are no complaints in the system yet."
-                  : `There are no ${statusFilter} complaints at the moment.`}
+                There are no {statusFilter.toLowerCase()} complaints at the moment.
               </p>
             </div>
           ) : (

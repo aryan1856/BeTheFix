@@ -146,7 +146,8 @@ export const AdminLogin = async (req, res) => {
 
   export const forwardPost = async (req, res) => {
     try {
-        const { postId, targetDepartment, adminId} = req.body;
+        const { postId, targetDepartment} = req.body;
+        const adminId = req.user._id;
         
         // Verify the admin is a Municipality admin
         const admin = await Admin.findById(adminId);
@@ -194,8 +195,9 @@ export const AdminLogin = async (req, res) => {
 
 export const resolvePost = async (req, res) => {
     try {
-        const { postId, resolutionText, adminId} = req.body;
+        const { postId, resolutionText} = req.body;
         const resolutionImage = req.file?.path; // Assuming you're using multer or similar for file uploads
+        const adminId = req.user._id
 
         // Find the admin
         const admin = await Admin.findById(adminId);
@@ -231,7 +233,7 @@ export const resolvePost = async (req, res) => {
         // Update admin stats
         admin.resolveCount += 1;
         admin.pendingCount -= 1;
-        admin.forwardedPosts = admin.forwardedPosts.filter(id => id.toString() !== postId);
+        // admin.forwardedPosts = admin.forwardedPosts.filter(id => id.toString() !== postId);
         await admin.save();
 
         res.status(200).json({ message: 'Post resolved successfully', success : true});
@@ -244,7 +246,8 @@ export const resolvePost = async (req, res) => {
 
 export const rejectPost = async (req, res) => {
     try {
-        const { postId, rejectionReason, adminId } = req.body;
+        const { postId, rejectionReason} = req.body;
+        const adminId = req.user._id;
         // Find the admin
         const admin = await Admin.findById(adminId);
         if (!admin) {
@@ -273,7 +276,7 @@ export const rejectPost = async (req, res) => {
 
         // Update admin stats
         admin.pendingCount -= 1;
-        admin.forwardedPosts = admin.forwardedPosts.filter(id => id.toString() !== postId);
+        // admin.forwardedPosts = admin.forwardedPosts.filter(id => id.toString() !== postId);
         await admin.save();
 
         res.status(200).json({ message: 'Post rejected successfully', success : true });
