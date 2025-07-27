@@ -84,11 +84,12 @@ export const AdminLogin = async (req, res) => {
             maxAge: 1 * 24 * 60 * 60 * 1000,
             httpOnly: true,
             sameSite: 'None',
-            secure:'false',
+            secure:true,
         })
             .json({
               message:"Logged in successfully",
-              createdUser
+              createdUser,
+              token
             })
   
     } catch (error) {

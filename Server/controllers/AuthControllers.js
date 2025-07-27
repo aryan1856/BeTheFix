@@ -1,8 +1,8 @@
-import { User } from "../models/User.model.js";
+import { User } from "../models/user.model.js";
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import validator from 'validator'
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { OAuth2Client } from 'google-auth-library';
 import { Admin } from "../models/Admin.model.js";
 import fetchLocation from '../utils/fetchLocation.js';
@@ -117,11 +117,12 @@ export const register = async (req, res) => {
             maxAge: 1 * 24 * 60 * 60 * 1000,
             httpOnly: true,
             sameSite: 'None',
-            secure:'false'
+            secure: true
         })
             .json({
                 message:"Logged in successfully",
-                createdUser
+                createdUser,
+                token
             })
 
     } catch (error) {
@@ -192,7 +193,8 @@ export const googleSignIn = async (req, res) => {
   })
       .json({
           createdUser ,
-          message:"Google login successfully"
+          message:"Google login successfully",
+          token : authToken
       })
 
   } catch (err) {

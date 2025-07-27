@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import {User} from '../models/User.model.js'
+import {User} from '../models/user.model.js'
 import fetchLocation from '../utils/fetchLocation.js';
 import Volunteered from "../models/Volunteered.model.js";
 import Post from "../models/Post.model.js"

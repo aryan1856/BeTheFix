@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import Comment from '../models/Comment.model.js';
 import Post from '../models/Post.model.js'; 
-import {User} from '../models/User.model.js';
+import {User} from '../models/user.model.js';
 
 export const add = async (req, res) => {
     try {

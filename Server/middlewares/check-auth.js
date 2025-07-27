@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken';
-import { User } from '../models/User.model.js';
+import { User } from '../models/user.model.js';
 import dotenv from 'dotenv'
 dotenv.config({})
 
 const isAuthenticated = async (req, res, next) => {
   try {
-    // Check if token exists in cookies
+   
     const token = req.cookies.token;
     //  console.log(token)
 

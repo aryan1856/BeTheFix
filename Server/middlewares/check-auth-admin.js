@@ -5,13 +5,12 @@ dotenv.config({})
 
 const isAuthenticated = async (req, res, next) => {
   try {
-    // Check if token exists in cookies
-    const token = req.cookies.token;
-    //  console.log(token)
-
-    if (!token) {
-      return res.status(401).json({ message: 'User authentication failed!!' });
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Unauthorized: No token provided' });
     }
+
+    const token = authHeader.split(' ')[1];
 
     // Verify token
     const decode = jwt.verify(token, process.env.JWT_SECRET);
