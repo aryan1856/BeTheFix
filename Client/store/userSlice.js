@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const storedUser = JSON.parse(localStorage.getItem('user'));
-const initialUser = storedUser ? { isAdmin: false, ...storedUser } : null;
+const initialUser = null;
 
 const userSlice = createSlice({
   name: "user",
@@ -10,8 +9,9 @@ const userSlice = createSlice({
   },
   reducers: {
     setLoggedinUser: (state, action) => {
-      state.loggedinUser = { isAdmin: false, ...action.payload };
+      state.loggedinUser = action.payload ? { ...action.payload } : null;
     },
+
     logout: (state) => {
       state.loggedinUser = null;
     },

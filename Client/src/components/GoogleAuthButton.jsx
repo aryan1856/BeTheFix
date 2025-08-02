@@ -68,8 +68,8 @@ const GoogleAuthButton = () => {
         setIsLoading(false);
         return;
       }
-
-      const res = await axios.post('http://localhost:8000/api/auth/google-login', {
+      const BACKEND_URI=import.meta.env.VITE_BACKEND_URL;
+      const res = await axios.post(`${BACKEND_URI}/api/auth/google-login`, {
         token,
         age,
         gender,

@@ -18,7 +18,7 @@ const HomeLayout = () => {
         }
       );
     }
-  }, []);
+  }, [navigator.geolocation]);
   return (
     <>
         <Outlet />

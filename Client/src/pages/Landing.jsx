@@ -1,8 +1,26 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import img from "../assets/images/landing.svg";
 import { Logo } from "../components";
+import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
 const Landing = () => {
+  const user = useSelector((store) => store.user.loggedinUser);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    // Wait for redux-persist to rehydrate if needed
+    const timer = setTimeout(() => setReady(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!ready) return null;
+
+  if (user) {
+    return user.isAdmin
+      ? <Navigate to="/dashboard/admindashboard" replace />
+      : <Navigate to="/dashboard" replace />;
+  }
   return (
     <section className="bg-gradient-to-br from-[#f0f4f8] to-white min-h-screen">
       <Logo />

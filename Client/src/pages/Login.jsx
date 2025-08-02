@@ -51,9 +51,9 @@ export default function Login() {
       try {
         const url = isLogin
 ? loginAsAdmin
-  ? 'http://localhost:8000/api/admin/login'
-  : 'http://localhost:8000/api/auth/login'
-: 'http://localhost:8000/api/auth/register';
+  ? `${import.meta.env.VITE_BACKEND_URL}/api/admin/login`
+  : `${import.meta.env.VITE_BACKEND_URL}/api/auth/login`
+: `${import.meta.env.VITE_BACKEND_URL}/api/auth/register`;
 
   
         let payload;

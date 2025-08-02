@@ -39,7 +39,7 @@ const PostModal = ({ post, onClose }) => {
     };
 
     fetchDetailedComments();
-  }, [post.comments]);
+  }, [post]);
 
 
   const nextImage = () => {
@@ -52,7 +52,7 @@ const PostModal = ({ post, onClose }) => {
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
-  
+
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/comments/add`,
@@ -64,7 +64,7 @@ const PostModal = ({ post, onClose }) => {
           withCredentials: true,
         }
       );
-  
+
       const newAddedComment = {
         _id: res.data.comment._id,
         text: res.data.comment.text,
@@ -80,14 +80,14 @@ const PostModal = ({ post, onClose }) => {
       console.error('Failed to add comment:', err);
     }
   };
-  
+
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-4 z-50"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 z-50 transition-all duration-300"
       onClick={onClose}
     >
       <motion.div
@@ -111,10 +111,13 @@ const PostModal = ({ post, onClose }) => {
               <img
                 src={post.images?.[currentImageIndex]}
                 alt={`Image ${currentImageIndex + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain rounded-l-2xl"
               />
               {post.images.length > 1 && (
                 <>
+                  <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                    {currentImageIndex + 1}/{post.images.length}
+                  </div>
                   <button
                     onClick={prevImage}
                     className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-black/50 p-2 rounded-full text-white hover:bg-black/75"
@@ -134,146 +137,146 @@ const PostModal = ({ post, onClose }) => {
 
           {/* Right Section */}
           <div className="sm:w-1/2 w-full flex flex-col h-[60vh] sm:h-[90vh]">
-          <div className="p-4 sm:p-6 border-b max-h-90 overflow-y-auto">
-  <div className="flex items-center gap-3 mb-4">
-    <img
-      src={post.author.avatar}
-      alt={post.author.name}
-      className="w-10 h-10 rounded-full"
-    />
-    <div>
-      <h3 className="font-medium">{post.author.name}</h3>
-      <p className="text-sm text-gray-500">{post.location?.address}</p>
-    </div>
-  </div>
-  <p className="text-gray-700 whitespace-pre-wrap">{post.caption}</p>
-</div>
+            <div className="p-4 sm:p-6 border-b max-h-90 overflow-y-auto">
+              <div className="flex items-center gap-3 mb-4">
+                <img
+                  src={post.author.avatar}
+                  alt={post.author.name}
+                  className="w-10 h-10 rounded-full"
+                />
+                <div>
+                  <h3 className="font-semibold text-lg">{post.author.name}</h3>
+                  <p className="text-sm text-gray-500">{post.location?.address}</p>
+                </div>
+              </div>
+              <p className="text-gray-700 whitespace-pre-wrap">{post.caption}</p>
+            </div>
 
             {/*  Comments Section */}
 
             <div className="flex-1 p-4 sm:p-6 overflow-y-auto max-h-[calc(100%-160px)]">
 
-  {isLoading ? (
-    <p className="text-center text-gray-500">Loading comments...</p>
-  ) : errorMsg ? (
-    <p className="text-center text-red-500">{errorMsg}</p>
-  ) : comments.length === 0 ? (
-    <p className="text-center text-gray-400">No comments yet.</p>
-  ) : (
-    comments.map((comment, idx) => (
-      <div key={comment._id} className="mb-6">
-        <div className="flex items-start gap-3">
-          <img
-            src={comment.avatar}
-            alt={comment.fullName}
-            className="w-8 h-8 rounded-full"
-          />
-          <div className="flex-1">
-            <div className="bg-gray-100 rounded-lg p-3">
-              <h4 className="font-medium">{comment.fullName}</h4>
-              <p className="text-gray-700">{comment.text}</p>
-            </div>
-    
-            {/* Replies toggle */}
-            <button
-              onClick={async () => {
-                const updated = [...comments];
-                const target = updated[idx];
-    
-                if (!target.showReplies) {
-                  try {
-                    const res = await axios.get(
-                      `${import.meta.env.VITE_BACKEND_URL}/api/comments/replies/${comment._id}`,
-                      { withCredentials: true }
-                    );
-                    target.replies = res.data.replies;
-                  } catch (err) {
-                    toast.error('Failed to load replies');
-                  }
-                }
-    
-                target.showReplies = !target.showReplies;
-                setComments(updated);
-              }}
-              className="text-sm text-blue-500 mt-1 hover:underline cursor-pointer"
-            >
-              {comment.showReplies ? 'Hide Replies' : 'View Replies'}
-            </button>
-    
-            {/* Replies list */}
-            {comment.showReplies &&
-              comment.replies?.map((reply) => (
-                <div key={reply._id} className="flex items-start gap-2 ml-8 mt-2">
-                  <img
-                    src={reply.avatar}
-                    alt={reply.fullName}
-                    className="w-6 h-6 rounded-full"
-                  />
-                  <div className="bg-gray-50 rounded px-3 py-2 w-full">
-                    <h5 className="font-medium text-sm">{reply.fullName}</h5>
-                    <p className="text-sm text-gray-700">{reply.text}</p>
+              {isLoading ? (
+                <p className="text-center text-gray-500">Loading comments...</p>
+              ) : errorMsg ? (
+                <p className="text-center text-red-500">{errorMsg}</p>
+              ) : comments.length === 0 ? (
+                <p className="text-center text-gray-400">No comments yet.</p>
+              ) : (
+                comments.map((comment, idx) => (
+                  <div key={comment._id} className="mb-6">
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={comment.avatar}
+                        alt={comment.fullName}
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div className="flex-1">
+                        <div className="bg-white/60 backdrop-blur-md shadow-sm border border-gray-200 rounded-lg p-3 transition-all duration-200">
+                          <h4 className="font-medium">{comment.fullName}</h4>
+                          <p className="text-gray-700">{comment.text}</p>
+                        </div>
+
+                        {/* Replies toggle */}
+                        <button
+                          onClick={async () => {
+                            const updated = [...comments];
+                            const target = updated[idx];
+
+                            if (!target.showReplies) {
+                              try {
+                                const res = await axios.get(
+                                  `${import.meta.env.VITE_BACKEND_URL}/api/comments/replies/${comment._id}`,
+                                  { withCredentials: true }
+                                );
+                                target.replies = res.data.replies;
+                              } catch (err) {
+                                toast.error('Failed to load replies');
+                              }
+                            }
+
+                            target.showReplies = !target.showReplies;
+                            setComments(updated);
+                          }}
+                          className="text-sm text-blue-500 mt-1 hover:underline cursor-pointer"
+                        >
+                          {comment.showReplies ? 'Hide Replies' : 'View Replies'}
+                        </button>
+
+                        {/* Replies list */}
+                        {comment.showReplies &&
+                          comment.replies?.map((reply) => (
+                            <div key={reply._id} className="flex items-start gap-2 ml-8 mt-2">
+                              <img
+                                src={reply.avatar}
+                                alt={reply.fullName}
+                                className="w-6 h-6 rounded-full"
+                              />
+                              <div className="bg-gray-100/70 border border-gray-200 rounded-lg px-3 py-2 w-full text-sm shadow-sm">
+                                <h5 className="font-medium text-sm">{reply.fullName}</h5>
+                                <p className="text-sm text-gray-700">{reply.text}</p>
+                              </div>
+                            </div>
+                          ))}
+
+                        {/* Add Reply input */}
+                        {comment.showReplies && (
+                          <div className="ml-8 mt-2 flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="Add a reply..."
+                              value={comment.replyText || ''}
+                              onChange={(e) => {
+                                const updated = [...comments];
+                                updated[idx].replyText = e.target.value;
+                                setComments(updated);
+                              }}
+                              className="flex-1 border border-gray-300 focus:ring-2 focus:ring-blue-400 px-4 py-2 rounded-full text-sm shadow-sm transition duration-200"
+                            />
+                            <button
+                              className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full cursor-pointer"
+                              onClick={async () => {
+                                const text = comment.replyText?.trim();
+                                if (!text) return;
+                                try {
+                                  const res = await axios.post(
+                                    `${import.meta.env.VITE_BACKEND_URL}/api/comments/add`,
+                                    {
+                                      parent: comment._id,
+                                      text,
+                                      postId: post._id
+                                    },
+                                    { withCredentials: true }
+                                  );
+
+
+                                  const newReply = {
+                                    _id: res.data.comment._id,
+                                    text: res.data.comment.text,
+                                    fullName: loggedInUser.fullName,
+                                    avatar: loggedInUser.avatar,
+                                  };
+
+                                  const updated = [...comments];
+                                  updated[idx].replies = [...(updated[idx].replies || []), newReply];
+                                  updated[idx].replyText = '';
+                                  setComments(updated);
+                                } catch (err) {
+                                  toast.error('Failed to add reply');
+                                  console.error(err);
+                                }
+                              }}
+                            >
+                              Reply
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-    
-            {/* Add Reply input */}
-            {comment.showReplies && (
-              <div className="ml-8 mt-2 flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Add a reply..."
-                  value={comment.replyText || ''}
-                  onChange={(e) => {
-                    const updated = [...comments];
-                    updated[idx].replyText = e.target.value;
-                    setComments(updated);
-                  }}
-                  className="flex-1 border px-3 py-1 rounded-full text-sm"
-                />
-                <button
-                  className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full cursor-pointer"
-                  onClick={async () => {
-                    const text = comment.replyText?.trim();
-                    if (!text) return;
-                    try {
-                      const res = await axios.post(
-                        `${import.meta.env.VITE_BACKEND_URL}/api/comments/add`,
-                        {
-                          parent:comment._id,
-                          text,
-                          postId:post._id
-                        },
-                        { withCredentials: true }
-                      );
-    
-    
-                      const newReply = {
-                        _id: res.data.comment._id,
-                        text: res.data.comment.text,
-                        fullName: loggedInUser.fullName,
-                        avatar: loggedInUser.avatar,
-                      };
-    
-                      const updated = [...comments];
-                      updated[idx].replies = [...(updated[idx].replies || []), newReply];
-                      updated[idx].replyText = '';
-                      setComments(updated);
-                    } catch (err) {
-                      toast.error('Failed to add reply');
-                      console.error(err);
-                    }
-                  }}
-                >
-                  Reply
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    ))
-  )}
-</div>
+                ))
+              )}
+            </div>
             {/* ✍️ Comment Input */}
             <div className="p-3 sm:p-4 border-t">
               <div className="flex gap-3">

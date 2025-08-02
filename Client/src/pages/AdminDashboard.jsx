@@ -12,20 +12,21 @@ const AdminDashboard = () => {
   const MUNCIPALITY_API = `${import.meta.env.VITE_BACKEND_URL}/api/admin/getmunicipalityposts`;
   const ADMIN_API = `${import.meta.env.VITE_BACKEND_URL}/api/admin/getadminposts`;
 
+  const fetchPosts = async () => {
+    try {
+      const res = await axios.get(
+        LoggedInUser.loggedinUser.departmentType === "Municipality"
+          ? MUNCIPALITY_API
+          : ADMIN_API,
+        { withCredentials: true }
+      );
+      setComplaints(res.data.posts || []);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const res = await axios.get(
-          LoggedInUser.loggedinUser.departmentType === "Municipality"
-            ? MUNCIPALITY_API
-            : ADMIN_API,
-          { withCredentials: true }
-        );
-        setComplaints(res.data.posts || []);
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-      }
-    };
     fetchPosts();
   }, [LoggedInUser.loggedinUser.departmentType]);
 
@@ -105,7 +106,11 @@ const AdminDashboard = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
               {filteredComplaints.map((complaint) => (
-                <ComplaintCard key={complaint._id} complaint={complaint} />
+                <ComplaintCard
+                  key={complaint._id}
+                  complaint={complaint}
+                  onStatusChange={fetchPosts}
+                />
               ))}
             </div>
           )}

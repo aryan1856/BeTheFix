@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ChevronDown, Check, Forward, X } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 const ComplaintCard = ({ complaint, onStatusChange }) => {
-  console.log(complaint)
+  console.log(complaint )
   const [showRemarkInput, setShowRemarkInput] = useState(false);
   const [showForwardDropdown, setShowForwardDropdown] = useState(false);
   const [remark, setRemark] = useState('');
@@ -32,8 +32,7 @@ const ComplaintCard = ({ complaint, onStatusChange }) => {
       setShowRemarkInput(false);
       setRemark('');
       toast.success('Complaint resolved successfully ✅');
-
-      if (onStatusChange) onStatusChange(complaint._id, 'Resolved');
+      if (onStatusChange) onStatusChange();
     } catch (err) {
       console.error('Failed to resolve complaint:', err);
       toast.error('Failed to resolve complaint ❌');
@@ -50,7 +49,7 @@ const ComplaintCard = ({ complaint, onStatusChange }) => {
       setShowRemarkInput(false);
       setRemark('');
       toast.success('Complaint rejected successfully ❌');
-      if (onStatusChange) onStatusChange(complaint._id, 'Rejected');
+      if (onStatusChange) onStatusChange();
     } catch (err) {
       console.error('Failed to reject complaint:', err);
       toast.error('Failed to reject complaint ❌');
@@ -67,6 +66,7 @@ const ComplaintCard = ({ complaint, onStatusChange }) => {
       setShowForwardDropdown(false);
       setForwardTo('');
       toast.success('Complaint forwarded successfully 📤');
+      if (onStatusChange) onStatusChange();
     } catch (err) {
       console.error('Failed to forward complaint:', err);
       toast.error('Failed to forward complaint ❌');
@@ -138,7 +138,12 @@ const ComplaintCard = ({ complaint, onStatusChange }) => {
                       setShowForwardDropdown(!showForwardDropdown);
                       setShowRemarkInput(false);
                     }}
-                    className="flex items-center px-3 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+                    className={`flex items-center px-3 py-2 text-sm rounded-lg ${
+                      complaint.status.state.includes("Pending at")
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-blue-500 hover:bg-blue-600 text-white'
+                    }`}
+                    disabled={complaint.status.state === 'Pending at'}
                   >
                     <Forward className="h-4 w-4 mr-1" />
                     Forward
@@ -155,7 +160,9 @@ const ComplaintCard = ({ complaint, onStatusChange }) => {
                           <button
                             key={dept.id}
                             onClick={() => setForwardTo(dept.value)}
-                            className={`flex w-full items-center px-4 py-2 text-sm text-left ${forwardTo === dept.value ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-100'}`}
+                            className={`flex w-full items-center px-4 py-2 text-sm text-left ${
+                              forwardTo === dept.value ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-100'
+                            }`}
                           >
                             {forwardTo === dept.value && <Check className="h-4 w-4 mr-2 text-blue-500" />}
                             {dept.name}
@@ -165,7 +172,11 @@ const ComplaintCard = ({ complaint, onStatusChange }) => {
                           <button
                             onClick={handleForward}
                             disabled={!forwardTo}
-                            className={`w-full py-1 px-3 rounded text-sm ${forwardTo ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+                            className={`w-full py-1 px-3 rounded text-sm ${
+                              forwardTo
+                                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                            }`}
                           >
                             Confirm Forward
                           </button>
@@ -221,6 +232,7 @@ const getStatusColor = (status) => {
     Resolved: 'text-green-500',
     Rejected: 'text-red-500',
     forwarded: 'text-blue-500',
+    'Pending at': 'text-blue-400',
     default: 'text-gray-500',
   };
   return colors[status] || colors.default;
