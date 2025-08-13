@@ -297,3 +297,22 @@ export const logout = async (req, res) => {
       })
   }
 }
+
+export const getUser = async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+      const user=req.user;
+      res.status(200).json({
+        _id: user._id,
+        email: user.email,
+        fullName:user.fullname,
+        avatar:user.avatar,
+        success: true
+      });
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
