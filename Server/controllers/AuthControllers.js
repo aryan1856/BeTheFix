@@ -305,11 +305,7 @@ export const getUser = async (req, res) => {
       }
       const user=req.user;
       res.status(200).json({
-        _id: user._id,
-        email: user.email,
-        fullName:user.fullname,
-        avatar:user.avatar,
-        success: true
+        user
       });
     } catch (error) {
       console.error("Error fetching user:", error);

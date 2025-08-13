@@ -11,8 +11,10 @@ import {
   AdminDashboard,
   ResolvedIssues
 } from "./pages";
+import axios from 'axios'
 import Login from "./pages/Login.jsx"
 import { GoogleOAuthProvider } from "@react-oauth/google"
+import { setLoggedinUser } from "../store/userSlice.js";
 
 import { ComplaintProvider } from './pages/ComplaintContext.jsx'
 
@@ -53,8 +55,31 @@ const router = createBrowserRouter([
 import { Toaster } from "react-hot-toast"
 
 import './index.css'
+import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import { useEffect } from "react";
 
 function App() {
+  const loggedInUser = useSelector((store) => store.user.loggedinUser);
+   const dispatch=useDispatch();
+    const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+    axios.get(`${BACKEND_URL}/api/auth/get-user`, { withCredentials: true }) 
+        .then(res => {
+            if (res.data && !loggedInUser) {
+                dispatch(setLoggedinUser(res.data));
+            }
+        })
+        .catch(() => dispatch(setLoggedinUser(null)))
+        .finally(()=>{
+          setLoading(false);
+        })
+}, [dispatch]);
+
+    if (loading) return <h2>Connecting to server,Please wait...</h2>;
+
   return (
     <>
     <ComplaintProvider>
