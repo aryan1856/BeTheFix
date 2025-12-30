@@ -1,4 +1,4 @@
-## BeTheFix (https://be-the-fix.vercel.app)
+## BeTheFix
 
 ## 🧠 Introduction:
 Civic issues like potholes, broken streetlights, and garbage often go unreported due to a lack of streamlined reporting mechanisms. Our project aims to bridge this gap by providing a centralized, user-friendly platform where citizens can easily report local problems, track their status, and engage with their community. By promoting transparency, accountability, and incentivized volunteering, we strive to create a more responsive and collaborative civic environment.
@@ -29,6 +29,10 @@ Civic issues like potholes, broken streetlights, and garbage often go unreported
 
 
 ---
+
+## Live Here -
+**Please run it in Microsoft Edge as Chrome as blocked third party cookies**
+**https://be-the-fix.vercel.app/**
 
 ## 👨‍💻 Contributors:
 **Team Name:** ByteKnights  
